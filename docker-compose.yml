@@ -21,7 +21,7 @@ services:
   #     - learning
 
   postgres:
-    container_name: fooddb
+    container_name: ${DB_HOST}
     image: postgres:latest
     environment:
       POSTGRES_USER: ${DB_USER}
