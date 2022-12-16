@@ -27,6 +27,7 @@ require (
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/lib/pq v1.10.2 // indirect
+	github.com/sethvargo/go-envconfig v0.8.3
 	go.uber.org/atomic v1.10.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )

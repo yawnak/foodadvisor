@@ -1,20 +1,21 @@
 package config
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/sethvargo/go-envconfig"
 	"gopkg.in/yaml.v3"
 )
 
 type DBConnConfig struct {
-	DB_HOST     string `yaml:"dbhost"`
-	DB_PORT     string `yaml:"dbport"`
-	DB_USER     string `yaml:"dbuser"`
-	DB_PASSWORD string `yaml:"dbpassword"`
-	DB_NAME     string `yaml:"dbname"`
+	Host     string `env:"HOST,required"`
+	Port     string `env:"PORT,required"`
+	User     string `env:"USER,required"`
+	Password string `env:"PASSWORD,required"`
+	Name     string `env:"NAME,required"`
 }
 
 func ParseDBConnConfig(path string) (*DBConnConfig, error) {
@@ -35,28 +36,12 @@ func ParseDBConnConfig(path string) (*DBConnConfig, error) {
 	return &dbconf, nil
 }
 
-func ParseDBConnConfigEnv() (*DBConnConfig, error) {
+func ParseDBConnConfigEnv(ctx context.Context, prefix string) (*DBConnConfig, error) {
 	var dbconf DBConnConfig
-	var ok bool
-	dbconf.DB_USER, ok = os.LookupEnv("DB_USER")
-	if !ok {
-		return nil, errors.New("db user not specified")
+	l := envconfig.PrefixLookuper(prefix, envconfig.OsLookuper())
+	err := envconfig.ProcessWith(ctx, &dbconf, l)
+	if err != nil {
+		return nil, fmt.Errorf("error processing: %w", err)
 	}
-	dbconf.DB_PASSWORD, ok = os.LookupEnv("DB_PASSWORD")
-	if !ok {
-		return nil, errors.New("db password not specified")
-	}
-	dbconf.DB_NAME, ok = os.LookupEnv("DB_NAME")
-	if !ok {
-		return nil, errors.New("db name not specified")
-	}
-	dbconf.DB_HOST, ok = os.LookupEnv("DB_HOST")
-	if !ok {
-		return nil, errors.New("db host not specified")
-	}
-	dbconf.DB_PORT, ok = os.LookupEnv("DB_PORT")
-	if !ok {
-		return nil, errors.New("db port not specified")
-	}
-	return &dbconf, nil
+	return &dbconf, err
 }
