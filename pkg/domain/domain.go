@@ -24,6 +24,11 @@ type Ingridient struct {
 	Name string
 }
 
+type Question struct {
+	Id   int32
+	Text string
+}
+
 type Food struct {
 	Id          int32
 	Name        string
