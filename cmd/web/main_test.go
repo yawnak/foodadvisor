@@ -58,11 +58,35 @@ func TestUserCRUD(t *testing.T) {
 	}
 	id, err := foodRepo.CreateUser(context.Background(), &user)
 	if err != nil {
-		t.Errorf("error creating user: %s\n", err)
+		t.Fatalf("error creating user: %s\n", err)
 	}
 	t.Logf("created userid: %d\n", id)
+
+	foundUser, err := foodRepo.GetUserById(context.Background(), id)
+
+	if err != nil {
+		t.Fatalf("error getting user: %s\n", err)
+	}
+
+	t.Logf("got user: %v", foundUser)
+
+	foundUser.Username = "lucky"
+
+	err = foodRepo.UpdateUser(context.Background(), foundUser)
+	if err != nil {
+		t.Fatalf("error updating user: %s\n", err)
+	}
+
+	foundUser, err = foodRepo.GetUserById(context.Background(), id)
+
+	if err != nil {
+		t.Fatalf("error getting updated user: %s\n", err)
+	}
+
+	t.Logf("got user: %v", foundUser)
+
 	err = foodRepo.DeleteUser(context.Background(), id)
 	if err != nil {
-		t.Errorf("error deleting user: %s\n", err)
+		t.Fatalf("error deleting user: %s\n", err)
 	}
 }
