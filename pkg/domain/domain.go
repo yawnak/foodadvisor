@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"time"
 )
 
 type User struct {
@@ -32,7 +31,7 @@ type Question struct {
 type Food struct {
 	Id          int32
 	Name        string
-	CookTime    time.Time
+	CookTime    int32
 	Price       int32
 	IsBreakfast bool
 	IsDinner    bool
