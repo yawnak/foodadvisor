@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type FoodDB struct {
@@ -12,7 +12,7 @@ type FoodDB struct {
 }
 
 func Open(ctx context.Context, connStr string) (*FoodDB, error) {
-	pool, err := pgxpool.Connect(ctx, connStr)
+	pool, err := pgxpool.New(ctx, connStr)
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to db: %s", err)
 	}
