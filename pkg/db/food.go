@@ -33,6 +33,13 @@ func foodToFoodRepo(f *domain.Food) *food {
 	res.IsBreakfast.Bool = f.IsBreakfast
 	res.IsDinner.Bool = f.IsDinner
 	res.IsSupper.Bool = f.IsSupper
+	res.Id.Valid = true
+	res.Name.Valid = true
+	res.CookTime.Valid = true
+	res.Price.Valid = true
+	res.IsBreakfast.Valid = true
+	res.IsDinner.Valid = true
+	res.IsSupper.Valid = true
 	return &res
 }
 
@@ -52,10 +59,9 @@ func (db *FoodDB) GetFoodById(ctx context.Context, id int32) (*domain.Food, erro
 	sb := foodStruct.SelectFrom(foodTable)
 	sb.Where(sb.Equal("id", id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
-
 	var food food
 	row := db.pool.QueryRow(ctx, sql, args...)
-	err := row.Scan(userStruct.Addr(&food)...)
+	err := row.Scan(foodStruct.Addr(&food)...)
 	if err != nil {
 		return nil, fmt.Errorf("error scanning user: %w", err)
 	}
@@ -64,7 +70,7 @@ func (db *FoodDB) GetFoodById(ctx context.Context, id int32) (*domain.Food, erro
 
 func (db *FoodDB) CreateFood(ctx context.Context, food *domain.Food) (int32, error) {
 	f := foodToFoodRepo(food)
-	sb := foodStruct.InsertIntoForTag(foodTable, "details", userStruct.ValuesForTag("details", f)...)
+	sb := foodStruct.InsertIntoForTag(foodTable, "details", f)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
 	row := db.pool.QueryRow(ctx, sql, args...)
@@ -89,7 +95,7 @@ func (db *FoodDB) DeleteFood(ctx context.Context, id int32) error {
 
 func (db *FoodDB) UpdateFood(ctx context.Context, food *domain.Food) error {
 	foodRepo := foodToFoodRepo(food)
-	sb := userStruct.UpdateForTag(usersTable, "details", userStruct.ValuesForTag("details", &foodRepo))
+	sb := foodStruct.UpdateForTag(foodTable, "details", foodRepo)
 	sb.Where(sb.Equal("id", foodRepo.Id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	_, err := db.pool.Exec(ctx, sql, args...)

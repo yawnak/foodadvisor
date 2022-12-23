@@ -47,8 +47,6 @@ func (db *FoodDB) GetUserById(ctx context.Context, id int32) (*domain.User, erro
 	sb := userStruct.SelectFrom(usersTable)
 	sb.Where(sb.Equal("id", id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
-	fmt.Println(sql)
-	fmt.Println(args)
 	var user user
 	row := db.pool.QueryRow(ctx, sql, args...)
 	err := row.Scan(userStruct.Addr(&user)...)

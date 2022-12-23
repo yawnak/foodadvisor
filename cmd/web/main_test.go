@@ -90,3 +90,48 @@ func TestUserCRUD(t *testing.T) {
 		t.Fatalf("error deleting user: %s\n", err)
 	}
 }
+
+func TestFoodCRUD(t *testing.T) {
+	foodRepo := OpenDB()
+	food := domain.Food{
+		Name:        "Kotleta",
+		CookTime:    60,
+		Price:       100,
+		IsBreakfast: false,
+		IsDinner:    true,
+		IsSupper:    true,
+	}
+	id, err := foodRepo.CreateFood(context.Background(), &food)
+	if err != nil {
+		t.Fatalf("error creating food: %s\n", err)
+	}
+	t.Logf("created foodid: %d\n", id)
+
+	foundFood, err := foodRepo.GetFoodById(context.Background(), id)
+
+	if err != nil {
+		t.Fatalf("error getting food: %s\n", err)
+	}
+
+	t.Logf("got user: %v", foundFood)
+
+	foundFood.Name = "Kotleta po kiyivski"
+
+	err = foodRepo.UpdateFood(context.Background(), foundFood)
+	if err != nil {
+		t.Fatalf("error updating food: %s\n", err)
+	}
+
+	foundFood, err = foodRepo.GetFoodById(context.Background(), id)
+
+	if err != nil {
+		t.Fatalf("error getting updated food: %s\n", err)
+	}
+
+	t.Logf("got user: %v", foundFood)
+
+	err = foodRepo.DeleteUser(context.Background(), id)
+	if err != nil {
+		t.Fatalf("error deleting food: %s\n", err)
+	}
+}
