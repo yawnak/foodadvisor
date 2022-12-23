@@ -40,7 +40,7 @@ func userRepotouser(u *user) *domain.User {
 	return &res
 }
 
-func (db *FoodDB) GetUserById(ctx context.Context, id int64) (*domain.User, error) {
+func (db *FoodDB) GetUserById(ctx context.Context, id int32) (*domain.User, error) {
 	sb := userStruct.SelectFrom(usersTable)
 	sb.Where(sb.Equal("id", id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
@@ -54,12 +54,12 @@ func (db *FoodDB) GetUserById(ctx context.Context, id int64) (*domain.User, erro
 	return userRepotouser(&user), nil
 }
 
-func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int64, error) {
+func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
 	sb := userStruct.InsertIntoForTag(usersTable, "details", userStruct.ValuesForTag("details", user)...)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
 	row := db.pool.QueryRow(ctx, sql, args...)
-	var id int64
+	var id int32
 	err := row.Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("error scanning returning id: %w", err)
@@ -67,7 +67,7 @@ func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int64, err
 	return id, nil
 }
 
-func (db *FoodDB) DeleteUser(ctx context.Context, id int64) error {
+func (db *FoodDB) DeleteUser(ctx context.Context, id int32) error {
 	sb := userStruct.DeleteFrom(usersTable)
 	sb.Where(sb.Equal("id", id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
