@@ -6,7 +6,7 @@ import (
 
 	"github.com/asstronom/foodadvisor/pkg/domain"
 	"github.com/huandu/go-sqlbuilder"
-	"github.com/jackc/pgx/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 
 type food struct {
 	Id          pgtype.Int4     `db:"id"`
-	Name        pgtype.Varchar  `db:"name" fieldtag:"details"`
+	Name        pgtype.Text     `db:"name" fieldtag:"details"`
 	CookTime    pgtype.Interval `db:"cooktime" fieldtag:"details"`
 	Price       pgtype.Int4     `db:"price" fieldtag:"details"`
 	IsBreakfast pgtype.Bool     `db:"isbreakfast" fieldtag:"details"`
@@ -26,22 +26,22 @@ type food struct {
 
 func foodToFoodRepo(f *domain.Food) *food {
 	res := food{}
-	res.Id.Set(f.Id)
-	res.Name.Set(f.Name)
-	res.CookTime.Set(f.CookTime)
-	res.Price.Set(f.Price)
-	res.IsBreakfast.Set(f.IsBreakfast)
-	res.IsDinner.Set(f.IsDinner)
-	res.IsSupper.Set(f.IsSupper)
+	res.Id.Int32 = f.Id
+	res.Name.String = f.Name
+	res.CookTime.Microseconds = int64(f.CookTime * 1000)
+	res.Price.Int32 = f.Price
+	res.IsBreakfast.Bool = f.IsBreakfast
+	res.IsDinner.Bool = f.IsDinner
+	res.IsSupper.Bool = f.IsSupper
 	return &res
 }
 
 func foodRepoToFood(f *food) *domain.Food {
 	return &domain.Food{
-		Id:          f.Id.Int,
+		Id:          f.Id.Int32,
 		Name:        f.Name.String,
 		CookTime:    int32(f.CookTime.Microseconds / 1000),
-		Price:       f.Price.Int,
+		Price:       f.Price.Int32,
 		IsBreakfast: f.IsBreakfast.Bool,
 		IsDinner:    f.IsDinner.Bool,
 		IsSupper:    f.IsSupper.Bool,
