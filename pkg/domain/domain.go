@@ -18,6 +18,7 @@ type AdvisorRepo interface {
 
 type Advisor interface {
 	CreateUser(ctx context.Context, user *User) (int32, error)
+	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
 }
 
 type UserRepo interface {
