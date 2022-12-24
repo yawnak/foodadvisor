@@ -72,5 +72,7 @@ func (cli *UICli) AdvisePrompt() error {
 		return fmt.Errorf("error prompting questionary: %w", err)
 	}
 	log.Println(questionary)
+
+	
 	return nil
 }

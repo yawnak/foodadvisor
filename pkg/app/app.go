@@ -48,3 +48,7 @@ func (adv *FoodAdvisor) CreateFood(ctx context.Context, food *domain.Food) (int3
 	}
 	return id, err
 }
+
+func (adv *FoodAdvisor) GetFoodByQuestionary(ctx context.Context, questionary *domain.Questionary) ([]domain.Food, error) {
+	return adv.db.GetFoodByQuestionary(ctx, questionary)
+}

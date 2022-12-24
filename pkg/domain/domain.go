@@ -69,4 +69,5 @@ type FoodRepo interface {
 	CreateFood(ctx context.Context, food *Food) (int32, error)
 	DeleteFood(ctx context.Context, id int32) error
 	UpdateFood(ctx context.Context, food *Food) error
+	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
 }
