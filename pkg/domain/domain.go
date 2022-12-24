@@ -17,6 +17,7 @@ type AdvisorRepo interface {
 }
 
 type Advisor interface {
+	CreateUser(ctx context.Context, user *User) (int32, error)
 }
 
 type UserRepo interface {
@@ -24,7 +25,7 @@ type UserRepo interface {
 	GetUserById(ctx context.Context, id int32) (*User, error)
 	UpdateUser(ctx context.Context, user *User) error
 	DeleteUser(ctx context.Context, id int32) error
-	GetUserByUsername(ctx context.Context, username string) (User, error)
+	GetUserByUsername(ctx context.Context, username string) (*User, error)
 }
 
 type Ingridient struct {
@@ -48,8 +49,8 @@ type Food struct {
 }
 
 type FoodRepo interface {
-	GetFoodById(ctx context.Context, id int32) (Food, error)
-	CreateFood(ctx context.Context, food Food) (int32, error)
+	GetFoodById(ctx context.Context, id int32) (*Food, error)
+	CreateFood(ctx context.Context, food *Food) (int32, error)
 	DeleteFood(ctx context.Context, id int32) error
-	UpdateFood(ctx context.Context, food Food) error
+	UpdateFood(ctx context.Context, food *Food) error
 }
