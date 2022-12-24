@@ -4,6 +4,13 @@ import (
 	"context"
 )
 
+type Questionary struct {
+	MaxCookTime *int32
+	MaxPrice    *int32
+	MealType    *string
+	DishType    *string
+}
+
 type User struct {
 	Id             int32
 	Username       string
