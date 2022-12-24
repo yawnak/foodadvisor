@@ -79,5 +79,23 @@ func (cli *UICli) AdvisePrompt() error {
 		return fmt.Errorf("error getting food: %w", err)
 	}
 	log.Println(food)
+
+	template := &promptui.SelectTemplates{
+		Active:   "{{ .Name | cyan }}",
+		Inactive: "{{ .Name | white }}",
+	}
+
+	prompts := promptui.Select{
+		Label:     "Select food to show info",
+		Templates: template,
+		Items:     food,
+	}
+
+	_, res, err := prompts.Run()
+	if err != nil {
+		return err
+	}
+
+	log.Println(res)
 	return nil
 }
