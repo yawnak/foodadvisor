@@ -48,7 +48,7 @@ func (cli *UICli) QuestionaryPrompt() (*domain.Questionary, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error prompting for meal type")
 	}
-	if s != "indifferent" {
+	if mealtype != "indifferent" {
 		questionary.MealType = &mealtype
 	}
 
@@ -60,7 +60,7 @@ func (cli *UICli) QuestionaryPrompt() (*domain.Questionary, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error prompting for meal type")
 	}
-	if s != "indifferent" {
+	if dishtype != "indifferent" {
 		questionary.DishType = &dishtype
 	}
 
