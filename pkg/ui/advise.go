@@ -44,24 +44,24 @@ func (cli *UICli) QuestionaryPrompt() (*domain.Questionary, error) {
 		Label: "Select meal type",
 		Items: append(domain.MealTypes, "indifferent"),
 	}
-	_, s, err = prompts.Run()
+	_, mealtype, err := prompts.Run()
 	if err != nil {
 		return nil, fmt.Errorf("error prompting for meal type")
 	}
 	if s != "indifferent" {
-		questionary.MealType = &s
+		questionary.MealType = &mealtype
 	}
 
 	prompts = promptui.Select{
 		Label: "Select dish type",
 		Items: append(domain.DishTypes, "indifferent"),
 	}
-	_, s, err = prompts.Run()
+	_, dishtype, err := prompts.Run()
 	if err != nil {
 		return nil, fmt.Errorf("error prompting for meal type")
 	}
 	if s != "indifferent" {
-		questionary.DishType = &s
+		questionary.DishType = &dishtype
 	}
 
 	return &questionary, nil
@@ -78,6 +78,6 @@ func (cli *UICli) AdvisePrompt() error {
 	if err != nil {
 		return fmt.Errorf("error getting food: %w", err)
 	}
-	
+	log.Println(food)
 	return nil
 }

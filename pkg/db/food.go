@@ -124,6 +124,9 @@ func (db *FoodDB) GetFoodByQuestionary(ctx context.Context, questionary *domain.
 
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 
+	log.Println(sql)
+	log.Println(args)
+
 	rows, err := db.pool.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error querying: %w", err)
