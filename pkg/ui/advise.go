@@ -3,7 +3,6 @@ package ui
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/asstronom/foodadvisor/pkg/domain"
@@ -72,13 +71,13 @@ func (cli *UICli) AdvisePrompt() error {
 	if err != nil {
 		return fmt.Errorf("error prompting questionary: %w", err)
 	}
-	log.Println(questionary)
+	//log.Println(questionary)
 
 	food, err := cli.adv.GetFoodByQuestionary(context.Background(), questionary)
 	if err != nil {
 		return fmt.Errorf("error getting food: %w", err)
 	}
-	log.Println(food)
+	//log.Println(food)
 	template := &promptui.SelectTemplates{
 		Active:   "{{ .Name | cyan }}",
 		Inactive: "{{ .Name | white }}",
@@ -91,11 +90,10 @@ func (cli *UICli) AdvisePrompt() error {
 		Items:     food,
 	}
 
-	_, res, err := prompts.Run()
+	_, _, err = prompts.Run()
 	if err != nil {
 		return err
 	}
 
-	log.Println(res)
 	return nil
 }
