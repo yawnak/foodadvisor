@@ -82,7 +82,7 @@ func (cli *UICli) AdvisePrompt() error {
 	template := &promptui.SelectTemplates{
 		Active:   "{{ .Name | cyan }}",
 		Inactive: "{{ .Name | white }}",
-		Selected: "{{ .Name }}",
+		Selected: "\u2714 {{ .Name }}",
 	}
 
 	prompts := promptui.Select{
