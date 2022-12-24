@@ -11,11 +11,11 @@ import (
 )
 
 type DBConnConfig struct {
-	Host     string `env:"HOST,required"`
-	Port     string `env:"PORT,required"`
-	User     string `env:"USER,required"`
-	Password string `env:"PASSWORD,required"`
-	Name     string `env:"NAME,required"`
+	Host     string `env:"HOST,required" yaml:"dbhost"`
+	Port     string `env:"PORT,required" yaml:"dbport"`
+	User     string `env:"USER,required" yaml:"dbuser"`
+	Password string `env:"PASSWORD,required" yaml:"dbpassword"`
+	Name     string `env:"NAME,required" yaml:"dbname"`
 }
 
 func ParseDBConnConfig(path string) (*DBConnConfig, error) {
