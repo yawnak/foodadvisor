@@ -11,9 +11,9 @@ type FoodAdvisor struct {
 }
 
 func NewFoodAdvisor(repo domain.AdvisorRepo) (*FoodAdvisor, error) {
-	var adv *FoodAdvisor
+	var adv FoodAdvisor
 	adv.db = repo
-	return adv, nil
+	return &adv, nil
 }
 
 func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int32, error) {

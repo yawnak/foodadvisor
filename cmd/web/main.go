@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/asstronom/foodadvisor/cmd/web/config"
+	"github.com/asstronom/foodadvisor/pkg/app"
 	"github.com/asstronom/foodadvisor/pkg/db"
 	migrations "github.com/asstronom/foodadvisor/pkg/db/migrations"
 	"github.com/asstronom/foodadvisor/pkg/ui"
@@ -40,7 +41,8 @@ func main() {
 	defer foodRepo.Close()
 	fmt.Println("Hello world!")
 
-	cli := ui.UICli{}
+	advisor, _ := app.NewFoodAdvisor(foodRepo)
+	cli, _ := ui.NewUICli(advisor)
 	err = cli.Run()
 	if err != nil {
 		log.Fatalf("error in ui: %s", err)

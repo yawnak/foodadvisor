@@ -12,9 +12,9 @@ type UICli struct {
 }
 
 func NewUICli(adv domain.Advisor) (*UICli, error) {
-	var cli *UICli
+	var cli UICli
 	cli.adv = adv
-	return cli, nil
+	return &cli, nil
 }
 
 func (cli *UICli) Run() error {
