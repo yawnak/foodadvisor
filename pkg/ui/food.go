@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -60,7 +61,11 @@ func (cli *UICli) FoodCreationPrompt() error {
 		return fmt.Errorf("error running select for dishtype: %w", err)
 	}
 
-	log.Printf("food: %v", food)
+	food.Id, err = cli.adv.CreateFood(context.Background(), &food)
+	if err != nil {
+		return fmt.Errorf("error creating food: %w", err)
+	}
 
+	log.Printf("food: %v", food)
 	return nil
 }

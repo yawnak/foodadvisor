@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/asstronom/foodadvisor/pkg/domain"
 	"github.com/huandu/go-sqlbuilder"
@@ -27,7 +28,7 @@ func foodToFoodRepo(f *domain.Food) *food {
 	res := food{}
 	res.Id.Int32 = f.Id
 	res.Name.String = f.Name
-	res.CookTime.Microseconds = int64(f.CookTime * 1000)
+	res.CookTime.Microseconds = int64(f.CookTime * 1000000 * 60)
 	res.Price.Int32 = f.Price
 	res.MealType.String = f.MealType
 	res.DishType.String = f.DishType
@@ -44,7 +45,7 @@ func foodRepoToFood(f *food) *domain.Food {
 	return &domain.Food{
 		Id:       f.Id.Int32,
 		Name:     f.Name.String,
-		CookTime: int32(f.CookTime.Microseconds / 1000),
+		CookTime: int32(f.CookTime.Microseconds / 1000000 / 60),
 		Price:    f.Price.Int32,
 		MealType: f.MealType.String,
 		DishType: f.DishType.String,
@@ -69,6 +70,8 @@ func (db *FoodDB) CreateFood(ctx context.Context, food *domain.Food) (int32, err
 	sb := foodStruct.InsertIntoForTag(foodTable, "details", f)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
+	log.Println(sql)
+	log.Println(args)
 	row := db.pool.QueryRow(ctx, sql, args...)
 	var id int32
 	err := row.Scan(&id)
