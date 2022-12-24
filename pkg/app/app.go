@@ -6,6 +6,10 @@ import (
 	"github.com/asstronom/foodadvisor/pkg/domain"
 )
 
+var (
+	ErrWrongCredentials = errors.New("wrong credentials")
+)
+
 type FoodAdvisor struct {
 	db domain.AdvisorRepo
 }
