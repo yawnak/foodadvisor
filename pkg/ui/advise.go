@@ -63,7 +63,14 @@ func (cli *UICli) QuestionaryPrompt() (*domain.Questionary, error) {
 		questionary.DishType = &s
 	}
 
-	log.Println(questionary)
-
 	return &questionary, nil
+}
+
+func (cli *UICli) AdvisePrompt() error {
+	questionary, err := cli.QuestionaryPrompt()
+	if err != nil {
+		return fmt.Errorf("error prompting questionary: %w", err)
+	}
+	log.Println(questionary)
+	return nil
 }

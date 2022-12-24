@@ -33,6 +33,10 @@ func (cli *UICli) MainMenu() error {
 
 	switch res {
 	case "Advise":
+		err = cli.AdvisePrompt()
+		if err != nil {
+			return fmt.Errorf("error advising: %w", err)
+		}
 	case "Create Food":
 		err = cli.FoodCreationPrompt()
 		if err != nil {
