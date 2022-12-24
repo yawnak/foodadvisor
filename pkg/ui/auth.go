@@ -84,6 +84,11 @@ func (cli *UICli) LoginPrompt() error {
 		return fmt.Errorf("error getting credentials: %w", err)
 	}
 	fmt.Printf("username: %s, password: %s\n", username, password)
+	user, err := cli.adv.GetUserByCredentials(context.Background(), username, password)
+	if err != nil {
+		return fmt.Errorf("error getting user: %w", err)
+	}
+	cli.user = *user
 	return nil
 }
 
