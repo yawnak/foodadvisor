@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -101,7 +102,10 @@ func (cli *UICli) RegisterPrompt() error {
 	if err != nil {
 		return fmt.Errorf("error getting expiration: %w", err)
 	}
-
-	fmt.Println(user)
+	user.Id, err = cli.adv.CreateUser(context.Background(), &user)
+	if err != nil {
+		return fmt.Errorf("error creating user: %w", err)
+	}
+	cli.user = user
 	return nil
 }
