@@ -11,11 +11,19 @@ type User struct {
 	ExpirationDays int32 //in days
 }
 
+type AdvisorRepo interface {
+	UserRepo
+	FoodRepo
+}
+
+type Advisor interface {
+}
+
 type UserRepo interface {
-	CreateUser(ctx context.Context, user *User) (int64, error)
-	GetUserById(ctx context.Context, id int64) (*User, error)
+	CreateUser(ctx context.Context, user *User) (int32, error)
+	GetUserById(ctx context.Context, id int32) (*User, error)
 	UpdateUser(ctx context.Context, user *User) error
-	DeleteUser(ctx context.Context, id int64) error
+	DeleteUser(ctx context.Context, id int32) error
 }
 
 type Ingridient struct {
@@ -39,4 +47,8 @@ type Food struct {
 }
 
 type FoodRepo interface {
+	GetFoodById(ctx context.Context, id int32) (Food, error)
+	CreateFood(ctx context.Context, food Food) (int32, error)
+	DeleteFood(ctx context.Context, id int32) error
+	UpdateFood(ctx context.Context, food Food) error
 }
