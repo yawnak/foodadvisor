@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -73,6 +74,10 @@ func (cli *UICli) AdvisePrompt() error {
 	}
 	log.Println(questionary)
 
+	food, err := cli.adv.GetFoodByQuestionary(context.Background(), questionary)
+	if err != nil {
+		return fmt.Errorf("error getting food: %w", err)
+	}
 	
 	return nil
 }
