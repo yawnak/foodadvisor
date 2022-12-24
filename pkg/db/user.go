@@ -56,6 +56,19 @@ func (db *FoodDB) GetUserById(ctx context.Context, id int32) (*domain.User, erro
 	return userRepotouser(&user), nil
 }
 
+func (db *FoodDB) GetUserByUsername(ctx context.Context, username string) (*domain.User, error) {
+	sb := userStruct.SelectFrom(usersTable)
+	sb.Where(sb.Equal("username", username))
+	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
+	var user user
+	row := db.pool.QueryRow(ctx, sql, args...)
+	err := row.Scan(userStruct.Addr(&user)...)
+	if err != nil {
+		return nil, fmt.Errorf("error scanning user: %w", err)
+	}
+	return userRepotouser(&user), nil
+}
+
 func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
 	userRepo := userToUserRepo(user)
 	sb := userStruct.InsertIntoForTag(usersTable, "details", userRepo)
