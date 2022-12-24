@@ -40,13 +40,12 @@ type Question struct {
 }
 
 type Food struct {
-	Id          int32
-	Name        string
-	CookTime    int32
-	Price       int32
-	IsBreakfast bool
-	IsDinner    bool
-	IsSupper    bool
+	Id       int32
+	Name     string
+	CookTime int32
+	Price    int32
+	MealType string
+	DishType string
 }
 
 type FoodRepo interface {
