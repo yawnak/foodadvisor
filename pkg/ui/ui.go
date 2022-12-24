@@ -22,5 +22,7 @@ func (cli *UICli) Run() error {
 	if err != nil {
 		return fmt.Errorf("error authenticating: %w", err)
 	}
+	fmt.Println("AUTHORIZED")
+	fmt.Println(cli.user)
 	return nil
 }
