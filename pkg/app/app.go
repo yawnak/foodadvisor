@@ -40,3 +40,11 @@ func (adv *FoodAdvisor) GetUserByCredentials(ctx context.Context, username strin
 	}
 	return user, nil
 }
+
+func (adv *FoodAdvisor) CreateFood(ctx context.Context, food *domain.Food) (int32, error) {
+	id, err := adv.db.CreateFood(ctx, food)
+	if err != nil {
+		return 0, fmt.Errorf("error creating food: %w", err)
+	}
+	return id, err
+}
