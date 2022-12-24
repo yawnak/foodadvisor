@@ -8,6 +8,13 @@ import (
 
 type UICli struct {
 	user domain.User
+	adv  domain.Advisor
+}
+
+func NewUICli(adv domain.Advisor) (*UICli, error) {
+	var cli *UICli
+	cli.adv = adv
+	return cli, nil
 }
 
 func (cli *UICli) Run() error {
