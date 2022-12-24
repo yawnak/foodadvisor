@@ -39,6 +39,14 @@ type Question struct {
 	Text string
 }
 
+var MealTypes = []string{
+	"breakfast", "dinner", "supper",
+}
+
+var DishTypes = []string{
+	"soup", "porridge", "puree", "desert", "cake", "cutlet", "dumpling",
+}
+
 type Food struct {
 	Id       int32
 	Name     string
