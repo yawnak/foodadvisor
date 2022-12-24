@@ -70,7 +70,7 @@ func (cli *UICli) AuthenticationMenu() error {
 	case "Register":
 		err = cli.RegisterPrompt()
 		if err != nil {
-			return fmt.Errorf("error during logging in: %w", err)
+			return fmt.Errorf("error during registering: %w", err)
 		}
 	default:
 		return fmt.Errorf("unknown result from select prompt: %s", res)
