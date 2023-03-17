@@ -1,5 +1,4 @@
 dbhost: fooddb
 dbport: 5432
 dbuser: user
-dbpassword: mypassword
 dbname: food
