@@ -12,9 +12,11 @@ import (
 )
 
 var (
+	//flags
 	isDev bool
 )
 
+// parse all flags
 func parseFlags() {
 	flag.BoolVar(&isDev, "dev", false, "set development mode")
 	flag.Parse()
@@ -23,19 +25,22 @@ func parseFlags() {
 func main() {
 	parseFlags()
 
-	dbconf, err := config.ParseDBConnConfig(`configs\dbconf.yaml`)
+	//parsing configs
+	var pathToDBConf string
+	if !isDev {
+		pathToDBConf = `configs\dbconf.yaml`
+	} else {
+		pathToDBConf = `configs\dbconf_dev.yaml`
+	}
+
+	dbconf, err := config.ParseDBConnConfig(pathToDBConf)
 	if err != nil {
 		log.Fatalf("error parsing db conf: %s\n", err)
 	}
 
-	if isDev {
-		dbconf, err = config.ParseDBConnConfig(`configs\dbconf_dev.yaml`)
-		if err != nil {
-			log.Fatalf("error parsing dev conf: %s\n", err)
-		}
-	}
 	fmt.Println(dbconf)
 	log.Fatal()
+
 	dburl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		dbconf.User, dbconf.Password, dbconf.Host, dbconf.Port, dbconf.Name)
 	fmt.Println(dburl)
