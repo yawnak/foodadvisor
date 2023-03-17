@@ -11,7 +11,8 @@
             "mode": "auto",
             "envFile": "${workspaceFolder}/.env",
             "env": {"DB_HOST": "localhost"},
-            "program": "${workspaceFolder}/cmd/web/main.go"
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/cmd/web/main.go",
         }
     ]
 }
