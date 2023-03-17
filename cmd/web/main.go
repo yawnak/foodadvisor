@@ -8,27 +8,12 @@ import (
 	"github.com/asstronom/foodadvisor/cmd/web/config"
 	"github.com/asstronom/foodadvisor/pkg/app"
 	"github.com/asstronom/foodadvisor/pkg/db"
-	migrations "github.com/asstronom/foodadvisor/pkg/db/migrations"
-	"github.com/asstronom/foodadvisor/pkg/ui"
 )
 
 func main() {
-	// dbconf, err := config.ParseDBConnConfigEnv(context.Background(), "DB_")
-	// if err != nil {
-	// 	log.Fatalf("error parsing db conf: %s\n", err)
-	// }
-
 	dbconf, err := config.ParseDBConnConfig(`C:\Users\danya\Documents\foodadvisor\configs\dbconf.yaml`)
 	if err != nil {
 		log.Fatalf("error parsing db conf: %s\n", err)
-	}
-
-	migrateurl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		dbconf.User, dbconf.Password, dbconf.Host, dbconf.Port, dbconf.Name)
-	pathToMigrations := "../pkg/db/migrations/sql" //"../../pkg/db/migrations/sql"
-	err = migrations.MigrateUp(pathToMigrations, migrateurl)
-	if err != nil {
-		log.Fatalf("error migrating db: %s\n", err)
 	}
 
 	dburl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
@@ -42,9 +27,5 @@ func main() {
 	fmt.Println("Hello world!")
 
 	advisor, _ := app.NewFoodAdvisor(foodRepo)
-	cli, _ := ui.NewUICli(advisor)
-	err = cli.Run()
-	if err != nil {
-		log.Fatalf("error in ui: %s", err)
-	}
+	fmt.Println(advisor)
 }
