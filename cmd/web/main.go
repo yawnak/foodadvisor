@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/asstronom/foodadvisor/pkg/app"
 	"github.com/asstronom/foodadvisor/pkg/config"
@@ -37,6 +38,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("error parsing db conf: %s\n", err)
 	}
+
+	dbconf.Password = os.Getenv("DB_PASSWORD")
 
 	fmt.Println(dbconf)
 	log.Fatal()

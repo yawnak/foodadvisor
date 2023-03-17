@@ -22,6 +22,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/huandu/go-sqlbuilder v1.18.0
 	github.com/jackc/pgx/v5 v5.2.0
+	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/manifoldco/promptui v0.9.0
 	github.com/sethvargo/go-envconfig v0.8.3
