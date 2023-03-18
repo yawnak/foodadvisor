@@ -68,7 +68,7 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:    "mvcAuthToken",
+		Name:    "foodAdvisorAuthToken",
 		Value:   token,
 		Expires: time.Now().Add(tokenTTL),
 	})
