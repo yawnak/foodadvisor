@@ -1,13 +1,10 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/golang/gddo/httputil/header"
 )
-
-
 
 // validates that request content type is set to JSON
 func validateContentJSON(next http.HandlerFunc) http.HandlerFunc {
