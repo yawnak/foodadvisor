@@ -55,5 +55,13 @@ func main() {
 	log.Println("successfully connected to food database")
 
 	advisor, _ := app.NewFoodAdvisor(foodRepo)
-	fmt.Println(advisor)
+	if err != nil {
+		log.Fatalf("error creating advisor service: %s", err)
+	}
+
+	srv, err := server.NewServer(advisor)
+	if err != nil {
+		log.Fatalf("error creating server: %s", err)
+	}
+	srv.ListenAndServe("8080")
 }
