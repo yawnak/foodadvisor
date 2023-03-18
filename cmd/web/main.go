@@ -52,7 +52,7 @@ func main() {
 		log.Fatalf("error opening db: %s", err)
 	}
 	defer foodRepo.Close()
-	fmt.Println("Hello world!")
+	log.Println("successfully connected to food database")
 
 	advisor, _ := app.NewFoodAdvisor(foodRepo)
 	fmt.Println(advisor)
