@@ -12,10 +12,10 @@ type Questionary struct {
 }
 
 type User struct {
-	Id             int32
-	Username       string
-	Password       string
-	ExpirationDays int32 //in days
+	Id             int32  `json:"id"`
+	Username       string `json:"username"`
+	Password       string `json:"password"`
+	ExpirationDays int32  `json:"expiration"` //in days
 }
 
 type AdvisorRepo interface {
