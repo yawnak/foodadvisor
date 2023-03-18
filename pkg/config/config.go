@@ -18,6 +18,7 @@ type DBConnConfig struct {
 }
 
 func BindConfig(conf any, paths ...string) error {
+	defer config.ClearAll()
 	if reflect.ValueOf(conf).Type().Kind() != reflect.Ptr {
 		return errors.New("conf is not a pointer")
 	}
