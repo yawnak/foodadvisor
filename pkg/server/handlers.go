@@ -8,8 +8,13 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/asstronom/foodadvisor/pkg/domain"
+)
+
+const (
+	tokenTTL = time.Hour * 12
 )
 
 func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
@@ -50,8 +55,25 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 			writeErrorAsJSON(w, http.StatusInternalServerError, ErrInternal)
 		}
 	}
+	fmt.Println(user)
+	id, err := srv.app.CreateUser(r.Context(), &user)
+	if err != nil {
+		fmt.Fprintf(w, "error creating user: %s", err)
+		return
+	}
+	token, err := srv.app.GenerateToken(r.Context(), user.Username, user.Password)
+	if err != nil {
+		log.Println("error when generating token after signup", err)
+		writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("error creating auth token"))
+		return
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:    "mvcAuthToken",
+		Value:   token,
+		Expires: time.Now().Add(tokenTTL),
+	})
 
-	
+	fmt.Fprint(w, id)
 }
 
 func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
