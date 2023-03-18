@@ -16,7 +16,7 @@ func NewServer(app domain.Advisor) (*Server, error) {
 		router: mux.NewRouter(),
 	}
 
-	srv.initRoutes()
+	srv.initAPIRoutes()
 
 	return &srv, nil
 }
