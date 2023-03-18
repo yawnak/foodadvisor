@@ -2,7 +2,10 @@ module github.com/asstronom/foodadvisor
 
 go 1.19
 
-require github.com/golang-migrate/migrate/v4 v4.15.2
+require (
+	github.com/golang-migrate/migrate/v4 v4.15.2
+	github.com/gorilla/mux v1.7.4
+)
 
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
