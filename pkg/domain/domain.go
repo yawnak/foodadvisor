@@ -28,6 +28,7 @@ type Advisor interface {
 	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
 	CreateFood(ctx context.Context, food *Food) (int32, error)
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
+	GenerateToken(ctx context.Context, username string, password string) (string, error)
 }
 
 type UserRepo interface {
