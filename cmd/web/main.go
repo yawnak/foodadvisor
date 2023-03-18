@@ -41,12 +41,8 @@ func main() {
 
 	dbconf.Password = os.Getenv("DB_PASSWORD")
 
-	fmt.Println(dbconf)
-	log.Fatal()
-
 	dburl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		dbconf.User, dbconf.Password, dbconf.Host, dbconf.Port, dbconf.Name)
-	fmt.Println(dburl)
 	foodRepo, err := db.Open(context.Background(), dburl)
 	if err != nil {
 		log.Fatalf("error opening db: %s", err)
