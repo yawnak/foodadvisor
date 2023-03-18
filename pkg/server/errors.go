@@ -7,7 +7,9 @@ import (
 )
 
 var (
-	ErrRequiredContentTypeJSON = errors.New("header Content-Type is not application/json")
+	ErrRequiredContentTypeJSON = errors.New("header Content-Type must be application/json")
+	ErrInternal                = errors.New(http.StatusText(http.StatusInternalServerError))
+	ErrEmptyRequestBody        = errors.New("request body must not be empty")
 )
 
 type ErrorResponse struct {
