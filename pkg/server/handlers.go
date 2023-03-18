@@ -53,6 +53,7 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		default:
 			log.Print(err.Error())
 			writeErrorAsJSON(w, http.StatusInternalServerError, ErrInternal)
+			return
 		}
 	}
 	fmt.Println(user)
