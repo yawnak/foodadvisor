@@ -24,19 +24,19 @@ func parseFlags() {
 }
 
 func main() {
+	var err error
 	parseFlags()
 
-	//parsing configs
-	var pathToDBConf string
-	if !isDev {
-		pathToDBConf = `configs\dbconf.yaml`
+	var dbconf config.DBConnConfig
+	var env string
+	if isDev {
+		env = "dev"
 	} else {
-		pathToDBConf = `configs\dbconf_dev.yaml`
+		env = "prod"
 	}
-
-	dbconf, err := config.ParseDBConnConfig(pathToDBConf)
+	err = config.BindConfig(&dbconf, "configs/conf.yaml", fmt.Sprintf("configs/conf.%s.yaml", env))
 	if err != nil {
-		log.Fatalf("error parsing db conf: %s\n", err)
+		log.Fatalln(err)
 	}
 
 	dbconf.Password = os.Getenv("DB_PASSWORD")
