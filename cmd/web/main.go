@@ -10,6 +10,7 @@ import (
 	"github.com/asstronom/foodadvisor/pkg/app"
 	"github.com/asstronom/foodadvisor/pkg/config"
 	"github.com/asstronom/foodadvisor/pkg/db"
+	"github.com/asstronom/foodadvisor/pkg/server"
 )
 
 var (
