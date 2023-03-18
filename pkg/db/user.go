@@ -10,31 +10,29 @@ import (
 )
 
 var (
-	userStruct = sqlbuilder.NewStruct(new(user))
+	userStruct = sqlbuilder.NewStruct(new(userRepo))
 	usersTable = "users"
 )
 
-type user struct {
+type userRepo struct {
 	Id             pgtype.Int4     `db:"id"`
 	Username       pgtype.Text     `db:"username" fieldtag:"details"`
-	Password       pgtype.Text     `db:"passwrd" fieldtag:"details"`
+	Password       pgtype.Text     `db:"passhash" fieldtag:"details"`
 	ExpirationDays pgtype.Interval `db:"expiration" fieldtag:"details"` //in days
 }
 
-func userToUserRepo(u *domain.User) *user {
-	var res user
-	res.Id.Int32 = u.Id
-	res.Username.String = u.Username
-	res.Password.String = u.Password
-	res.ExpirationDays.Days = u.ExpirationDays
+func userToUserRepo(user *domain.User) *userRepo {
+	var res userRepo
+	res.Id.Int32 = user.Id
 	res.Id.Valid = true
-	res.Username.Valid = true
-	res.Password.Valid = true
+	res.Username.Scan(user.Username)
+	res.Password.Scan(user.Password)
+	res.ExpirationDays.Days = user.ExpirationDays
 	res.ExpirationDays.Valid = true
 	return &res
 }
 
-func userRepotouser(u *user) *domain.User {
+func userRepotouser(u *userRepo) *domain.User {
 	var res domain.User
 	res.Id = u.Id.Int32
 	res.Username = u.Username.String
@@ -47,7 +45,7 @@ func (db *FoodDB) GetUserById(ctx context.Context, id int32) (*domain.User, erro
 	sb := userStruct.SelectFrom(usersTable)
 	sb.Where(sb.Equal("id", id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
-	var user user
+	var user userRepo
 	row := db.pool.QueryRow(ctx, sql, args...)
 	err := row.Scan(userStruct.Addr(&user)...)
 	if err != nil {
@@ -60,7 +58,7 @@ func (db *FoodDB) GetUserByUsername(ctx context.Context, username string) (*doma
 	sb := userStruct.SelectFrom(usersTable)
 	sb.Where(sb.Equal("username", username))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
-	var user user
+	var user userRepo
 	row := db.pool.QueryRow(ctx, sql, args...)
 	err := row.Scan(userStruct.Addr(&user)...)
 	if err != nil {
@@ -71,6 +69,7 @@ func (db *FoodDB) GetUserByUsername(ctx context.Context, username string) (*doma
 
 func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
 	userRepo := userToUserRepo(user)
+	fmt.Println(userRepo)
 	sb := userStruct.InsertIntoForTag(usersTable, "details", userRepo)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
