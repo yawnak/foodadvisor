@@ -7,7 +7,7 @@ import (
 )
 
 // validates that request content type is set to JSON
-func (srv *Server) validateContentJSON(next http.Handler) http.HandlerFunc {
+func validateContentJSON(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Content-Type") != "" {
 			value, _ := header.ParseValueAndParams(r.Header, "Content-Type")
