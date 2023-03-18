@@ -1,4 +1,0 @@
-dbhost: localhost
-dbport: 5432
-dbuser: user
-dbname: food

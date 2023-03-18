@@ -1,4 +1,3 @@
-dbhost: fooddb
 dbport: 5432
 dbuser: user
 dbname: food
