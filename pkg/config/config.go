@@ -1,45 +1,37 @@
 package config
 
 import (
+	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
+	"reflect"
 
-	"gopkg.in/yaml.v3"
+	"github.com/gookit/config/v2"
+	"github.com/gookit/config/v2/yaml"
 )
 
 type DBConnConfig struct {
-	Host     string `yaml:"dbhost"`
-	Port     string `yaml:"dbport"`
-	User     string `yaml:"dbuser"`
-	Name     string `yaml:"dbname"`
+	Host     string `config:"dbhost"`
+	Port     string `config:"dbport"`
+	User     string `config:"dbuser"`
+	Name     string `config:"dbname"`
 	Password string
 }
 
-func ParseDBConnConfig(path string) (*DBConnConfig, error) {
-	abspath, err := filepath.Abs(path)
-	if err != nil {
-		return nil, fmt.Errorf("bad path: %w", err)
+func BindConfig(conf any, paths ...string) error {
+	if reflect.ValueOf(conf).Type().Kind() != reflect.Ptr {
+		return errors.New("conf is not a pointer")
 	}
-	yamlConf, err := os.ReadFile(abspath)
+	config.WithOptions(config.ParseEnv, func(opt *config.Options) {
+		opt.DecoderConfig.TagName = "config"
+	})
+	// add driver for support yaml content
+	config.AddDriver(yaml.Driver)
+
+	err := config.LoadFiles(paths...)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file: %w", err)
+		return fmt.Errorf("error loading config files: %w", err)
 	}
 
-	var dbconf DBConnConfig
-	err = yaml.Unmarshal(yamlConf, &dbconf)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling config: %w", err)
-	}
-	return &dbconf, nil
+	err = config.Decode(conf)
+	return err
 }
-
-// func ParseDBConnConfigEnv(ctx context.Context, prefix string) (*DBConnConfig, error) {
-// 	var dbconf DBConnConfig
-// 	l := envconfig.PrefixLookuper(prefix, envconfig.OsLookuper())
-// 	err := envconfig.ProcessWith(ctx, &dbconf, l)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("error processing: %w", err)
-// 	}
-// 	return &dbconf, err
-// }
