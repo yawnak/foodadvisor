@@ -35,7 +35,12 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 	//retrieving user from db
 	user, err := c.db.GetUserByUsername(ctx, username)
 	if err != nil {
-		return "", fmt.Errorf("error generating token: %w", err)
+		switch {
+		case errors.Is(err, domain.ErrNoUsername):
+			return "", domain.ErrWrongCredentials
+		default:
+			return "", fmt.Errorf("error generating token: %w", err)
+		}
 	}
 	//comparing using bcrypt
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
