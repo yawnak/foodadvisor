@@ -32,10 +32,12 @@ func NewFoodAdvisor(repo domain.AdvisorRepo) (*FoodAdvisor, error) {
 }
 
 func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, password string) (string, error) {
+	//retrieving user from db
 	user, err := c.db.GetUserByUsername(ctx, username)
 	if err != nil {
 		return "", fmt.Errorf("error generating token: %w", err)
 	}
+	//comparing using bcrypt
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		switch {
@@ -45,6 +47,7 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 			return "", fmt.Errorf("error generating token: %w", err)
 		}
 	}
+	//creating jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
