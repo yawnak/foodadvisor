@@ -62,6 +62,29 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 	return token.SignedString([]byte(signingKey))
 }
 
+func (adv *FoodAdvisor) ParseToken(ctx context.Context, token string) (int32, error) {
+	accessToken, err := jwt.ParseWithClaims(token, &tokenClaims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, domain.ErrInvalidSigningMethod
+		}
+		return []byte(signingKey), nil
+	})
+	if err != nil {
+		var validationError *jwt.ValidationError
+		switch {
+		case errors.As(err, &validationError):
+			return -1, domain.ErrBadToken
+		default:
+			return -1, err
+		}
+	}
+	claims, ok := accessToken.Claims.(*tokenClaims)
+	if !ok {
+		return 0, domain.ErrBadToken
+	}
+	return claims.UserID, nil
+}
+
 func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
 	//hashing password using bcrypt
 	bpass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
