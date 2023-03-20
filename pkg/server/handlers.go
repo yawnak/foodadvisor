@@ -127,7 +127,6 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 			writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("error generating auth token"))
 			return
 		}
-		return
 	}
 	http.SetCookie(w, &http.Cookie{
 		Name:    "foodAdvisorAuthToken",
