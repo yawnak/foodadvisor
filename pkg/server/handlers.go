@@ -118,8 +118,15 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	}
 	token, err := srv.app.GenerateToken(r.Context(), credentials.Username, credentials.Password)
 	if err != nil {
-		log.Println("error generating token while login", err)
-		writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("error creating auth token"))
+		switch {
+		case errors.Is(err, domain.ErrWrongCredentials):
+			writeErrorAsJSON(w, http.StatusUnauthorized, err)
+			return
+		default:
+			log.Println("error generating token while login:", err)
+			writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("error generating auth token"))
+			return
+		}
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
