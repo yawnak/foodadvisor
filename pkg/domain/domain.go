@@ -2,6 +2,11 @@ package domain
 
 import (
 	"context"
+	"time"
+)
+
+const (
+	TokenTTL = time.Hour * 12
 )
 
 type Questionary struct {

@@ -13,7 +13,6 @@ import (
 
 const (
 	signingKey = "pudgebooster"
-	tokenTTL   = 12 * time.Hour
 )
 
 type tokenClaims struct {
@@ -55,7 +54,7 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 	//creating jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			ExpiresAt: time.Now().Add(domain.TokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		user.Id,
