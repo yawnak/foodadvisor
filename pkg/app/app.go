@@ -72,9 +72,11 @@ func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int3
 	case err != nil:
 		return -1, fmt.Errorf("unknown error creating user: %w", err)
 	}
-	user.Password = string(bpass)
+	temp := *user
+	temp.Password = string(bpass)
+
 	//saving to db
-	id, err := adv.db.CreateUser(ctx, user)
+	id, err := adv.db.CreateUser(ctx, &temp)
 	if err != nil {
 		return 0, fmt.Errorf("error creating user: %w", err)
 	}
