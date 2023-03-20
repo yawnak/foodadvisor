@@ -2,11 +2,13 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"github.com/yawnak/foodadvisor/pkg/domain"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/yawnak/foodadvisor/pkg/domain"
 )
 
 var (
@@ -62,7 +64,12 @@ func (db *FoodDB) GetUserByUsername(ctx context.Context, username string) (*doma
 	row := db.pool.QueryRow(ctx, sql, args...)
 	err := row.Scan(userStruct.Addr(&user)...)
 	if err != nil {
-		return nil, fmt.Errorf("error scanning user: %w", err)
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, domain.ErrNoUsername
+		default:
+			return nil, fmt.Errorf("error scanning user: %w", err)
+		}
 	}
 	return userRepotouser(&user), nil
 }
