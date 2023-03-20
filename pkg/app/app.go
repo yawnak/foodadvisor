@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yawnak/foodadvisor/pkg/domain"
 	"github.com/golang-jwt/jwt"
+	"github.com/yawnak/foodadvisor/pkg/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -34,10 +34,16 @@ func NewFoodAdvisor(repo domain.AdvisorRepo) (*FoodAdvisor, error) {
 func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, password string) (string, error) {
 	user, err := c.db.GetUserByUsername(ctx, username)
 	if err != nil {
-		return "", fmt.Errorf("error getting user: %w", err)
+		return "", fmt.Errorf("error generating token: %w", err)
 	}
-	if user.Username != username || user.Password != password {
-		return "", domain.ErrWrongCredentials
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return "", domain.ErrWrongCredentials
+		default:
+			return "", fmt.Errorf("error generating token: %w", err)
+		}
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
@@ -50,6 +56,7 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 }
 
 func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
+	//hashing password using bcrypt
 	bpass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	switch {
 	case errors.Is(err, bcrypt.ErrPasswordTooLong):
@@ -58,6 +65,7 @@ func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int3
 		return -1, fmt.Errorf("unknown error creating user: %w", err)
 	}
 	user.Password = string(bpass)
+	//saving to db
 	id, err := adv.db.CreateUser(ctx, user)
 	if err != nil {
 		return 0, fmt.Errorf("error creating user: %w", err)
