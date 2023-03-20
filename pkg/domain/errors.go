@@ -4,6 +4,6 @@ import "errors"
 
 var (
 	ErrWrongCredentials = errors.New("wrong credentials")
-
-	ErrPasswordTooLong = errors.New("password too long")
+	ErrNoUsername       = errors.New("username does not exist")
+	ErrPasswordTooLong  = errors.New("password too long")
 )
