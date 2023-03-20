@@ -56,7 +56,6 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Println(user)
 	id, err := srv.app.CreateUser(r.Context(), &user)
 	if err != nil {
 		fmt.Fprintf(w, "error creating user: %s", err)
