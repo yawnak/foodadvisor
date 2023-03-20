@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/asstronom/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/pkg/domain"
 	"github.com/gorilla/mux"
 )
 

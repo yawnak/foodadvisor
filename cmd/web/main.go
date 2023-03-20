@@ -7,10 +7,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/asstronom/foodadvisor/pkg/app"
-	"github.com/asstronom/foodadvisor/pkg/config"
-	"github.com/asstronom/foodadvisor/pkg/db"
-	"github.com/asstronom/foodadvisor/pkg/server"
+	"github.com/yawnak/foodadvisor/pkg/app"
+	"github.com/yawnak/foodadvisor/pkg/config"
+	"github.com/yawnak/foodadvisor/pkg/db"
+	"github.com/yawnak/foodadvisor/pkg/server"
 )
 
 var (

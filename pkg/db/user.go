@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/asstronom/foodadvisor/pkg/domain"
-	"github.com/huandu/go-sqlbuilder"
+	"github.com/yawnak/foodadvisor/pkg/domain"
+	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

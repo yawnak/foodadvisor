@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/asstronom/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/pkg/domain"
 )
 
 const (

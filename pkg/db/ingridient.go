@@ -1,6 +1,6 @@
 package db
 
-import "github.com/huandu/go-sqlbuilder"
+import sqlbuilder "github.com/huandu/go-sqlbuilder"
 
 var (
 	ingridientStruct = sqlbuilder.NewStruct(new(ingridient))

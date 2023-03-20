@@ -2,11 +2,13 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
-	"github.com/asstronom/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/pkg/domain"
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -48,6 +50,14 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 }
 
 func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
+	bpass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	switch {
+	case errors.Is(err, bcrypt.ErrPasswordTooLong):
+		return -1, fmt.Errorf("error creating user: %w", domain.ErrPasswordTooLong)
+	case err != nil:
+		return -1, fmt.Errorf("unknown error creating user: %w", err)
+	}
+	user.Password = string(bpass)
 	id, err := adv.db.CreateUser(ctx, user)
 	if err != nil {
 		return 0, fmt.Errorf("error creating user: %w", err)
