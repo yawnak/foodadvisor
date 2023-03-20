@@ -50,3 +50,8 @@ func (srv *Server) auth(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r.WithContext(context.WithValue(r.Context(), keyUserId, id)))
 	}
 }
+
+func retrieveUserId(ctx context.Context) (int32, bool) {
+	id, ok := ctx.Value(keyUserId).(int32)
+	return id, ok
+}
