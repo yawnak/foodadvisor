@@ -64,7 +64,7 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 	}
 	token, err := srv.app.GenerateToken(r.Context(), user.Username, user.Password)
 	if err != nil {
-		log.Println("error when generating token after signup", err)
+		log.Println("error when generating token after signup:", err)
 		writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("error creating auth token"))
 		return
 	}
