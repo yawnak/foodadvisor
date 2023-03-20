@@ -3,7 +3,9 @@ package domain
 import "errors"
 
 var (
-	ErrWrongCredentials = errors.New("wrong credentials")
-	ErrNoUsername       = errors.New("username does not exist")
-	ErrPasswordTooLong  = errors.New("password too long")
+	ErrWrongCredentials     = errors.New("wrong credentials")
+	ErrNoUsername           = errors.New("username does not exist")
+	ErrPasswordTooLong      = errors.New("password too long")
+	ErrBadToken             = errors.New("auth token is of wrong format")
+	ErrInvalidSigningMethod = errors.New("token is signed with wrong method")
 )
