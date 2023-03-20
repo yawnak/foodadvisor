@@ -13,6 +13,10 @@ import (
 	"github.com/yawnak/foodadvisor/pkg/domain"
 )
 
+const (
+	authCookieName = "foodAdvisorAuthToken"
+)
+
 func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 	var err error
 	//unmarshaling request to domain.User
@@ -64,7 +68,7 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:    "foodAdvisorAuthToken",
+		Name:    authCookieName,
 		Value:   token,
 		Expires: time.Now().Add(domain.TokenTTL),
 	})
@@ -124,7 +128,7 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:    "foodAdvisorAuthToken",
+		Name:    authCookieName,
 		Value:   token,
 		Expires: time.Now().Add(domain.TokenTTL),
 	})
