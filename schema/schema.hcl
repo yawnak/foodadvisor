@@ -38,8 +38,7 @@ table "hints_to_meals" {
     on_delete   = NO_ACTION
   }
 }
-
-table "mealstousers" {
+table "meals_to_users" {
   schema = schema.public
   column "userid" {
     null = false
@@ -56,13 +55,13 @@ table "mealstousers" {
   primary_key {
     columns = [column.userid, column.mealid]
   }
-  foreign_key "foodtousers_mealid_fkey" {
+  foreign_key "meals_to_users_mealid_fkey" {
     columns     = [column.mealid]
     ref_columns = [table.meals.column.id]
     on_update   = NO_ACTION
     on_delete   = NO_ACTION
   }
-  foreign_key "foodtousers_userid_fkey" {
+  foreign_key "meals_to_users_userid_fkey" {
     columns     = [column.userid]
     ref_columns = [table.users.column.id]
     on_update   = NO_ACTION
