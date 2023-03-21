@@ -74,16 +74,33 @@ table "meals" {
     null = false
     type = serial
   }
-  column "name" {
+
+table permissions_to_users {
+  schema = schema.public
+  column "permission" {
     null = false
     type = character_varying(30)
   }
-  column "cooktime" {
+  column "role" {
     null = false
-    type = minute
+    type = character_varying(30)
   }
   primary_key {
-    columns = [column.id]
+    columns = [column.role, column.permission]
+  }
+    foreign_key "permissions_to_role_permission_fkey" {
+    columns     = [column.permission]
+    ref_columns = [table.permissions.column.name]
+    on_update   = NO_ACTION
+    on_delete   = NO_ACTION
+  }
+  foreign_key "permissions_to_role_role_fkey" {
+    columns     = [column.role]
+    ref_columns = [table.roles.column.name]
+    on_update   = NO_ACTION
+    on_delete   = NO_ACTION
+  }
+}
   }
   index "meals_name_key" {
     unique  = true
