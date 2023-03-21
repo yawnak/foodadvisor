@@ -38,6 +38,28 @@ table "hints_to_meals" {
     on_delete   = NO_ACTION
   }
 }
+table "meals" {
+  schema = schema.public
+  column "id" {
+    null = false
+    type = serial
+  }
+  column "name" {
+    null = false
+    type = character_varying(30)
+  }
+  column "cooktime" {
+    null = false
+    type = minute
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  index "meals_name_key" {
+    unique  = true
+    columns = [column.name]
+  }
+}
 table "meals_to_users" {
   schema = schema.public
   column "userid" {
