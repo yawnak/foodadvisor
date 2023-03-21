@@ -40,6 +40,24 @@ services:
       retries: 5
       start_period: 5s
 
+  dev_postgres:
+    container_name: devdb
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: test
+    ports:
+      - "6543:5432"
+    volumes: 
+      - dbdata:/var/lib/dev_postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   # dbtest:
   #   container_name: testdb
   #   image: postgres:latest
