@@ -12,8 +12,7 @@ table "hints" {
     columns = [column.id]
   }
 }
-
-table "hintstousers" {
+table "hints_to_meals" {
   schema = schema.public
   column "hintid" {
     null = false
@@ -26,15 +25,15 @@ table "hintstousers" {
   primary_key {
     columns = [column.mealid, column.hintid]
   }
-  foreign_key "hintstousers_mealid_fkey" {
-    columns     = [column.mealid]
-    ref_columns = [table.meals.column.id]
+  foreign_key "hints_to_meals_hintid_fkey" {
+    columns     = [column.hintid]
+    ref_columns = [table.hints.column.id]
     on_update   = NO_ACTION
     on_delete   = NO_ACTION
   }
-  foreign_key "hintstousers_hintid_fkey" {
-    columns     = [column.hintid]
-    ref_columns = [table.hints.column.id]
+  foreign_key "hints_to_meals_mealid_fkey" {
+    columns     = [column.mealid]
+    ref_columns = [table.meals.column.id]
     on_update   = NO_ACTION
     on_delete   = NO_ACTION
   }
