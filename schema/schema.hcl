@@ -68,12 +68,17 @@ table "meals_to_users" {
     on_delete   = NO_ACTION
   }
 }
-table "meals" {
+
+table permissions {
   schema = schema.public
-  column "id" {
+  column "name" {
     null = false
-    type = serial
+    type = character_varying(30)
   }
+  primary_key {
+    columns = [column.name]
+  }
+}
 
 table permissions_to_users {
   schema = schema.public
