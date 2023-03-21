@@ -101,12 +101,18 @@ table permissions_to_users {
     on_delete   = NO_ACTION
   }
 }
+
+table "roles" {
+  schema = schema.public
+  column "name" {
+    null = false
+    type = character_varying(30)
   }
-  index "meals_name_key" {
-    unique  = true
+  primary_key {
     columns = [column.name]
   }
 }
+
 table "users" {
   schema = schema.public
   column "id" {
