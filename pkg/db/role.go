@@ -38,11 +38,13 @@ func (db *FoodDB) CreateRole(ctx context.Context, role domain.Role) error {
 		}
 	}
 	rows := make([][]interface{}, 0, len(role.Permissions))
-	for permission, _ := range role.Permissions {
+	for permission := range role.Permissions {
 		rows = append(rows, []interface{}{role.Name, permission})
 	}
 
-	n, err := tx.CopyFrom(ctx, pgx.Identifier{permissionsToRolesTable}, []string{"role", "permission"}, pgx.CopyFromRows(rows))
+	n, err := tx.CopyFrom(ctx, pgx.Identifier{permissionsToRolesTable},
+		[]string{"role", "permission"},
+		pgx.CopyFromRows(rows))
 
 	if err != nil {
 		fmt.Println("number of insertions", n)
