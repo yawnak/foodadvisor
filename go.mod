@@ -30,6 +30,7 @@ require (
 )
 
 require (
+	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gookit/config/v2 v2.2.1
 	github.com/huandu/xstrings v1.3.2 // indirect
