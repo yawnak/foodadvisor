@@ -130,3 +130,16 @@ func (db *FoodDB) UpdateRole(ctx context.Context, role *domain.Role) error {
 	tx.Commit(ctx)
 	return nil
 }
+
+func (db *FoodDB) DeleteRole(ctx context.Context, name string) error {
+	sql, args, err := goqu.Dialect("postgres").Delete(goqu.T(roleTable)).Prepared(true).
+		Where(goqu.T(roleTable).Col("name").Eq(name)).ToSQL()
+	if err != nil {
+		return fmt.Errorf("error building delete sql: %w", err)
+	}
+	_, err = db.pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("error querying delete: %w", err)
+	}
+	return err
+}
