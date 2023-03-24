@@ -154,6 +154,11 @@ table "users" {
     null = false
     type = text
   }
+  column "role" {
+    null    = false
+    type    = character_varying(30)
+    default = "user"
+  }
   column "expiration" {
     null    = true
     type    = day
@@ -161,6 +166,12 @@ table "users" {
   }
   primary_key {
     columns = [column.id]
+  }
+  foreign_key "users_role_fkey" {
+    columns     = [column.role]
+    ref_columns = [table.roles.column.name]
+    on_update   = NO_ACTION
+    on_delete   = NO_ACTION
   }
   index "users_username_key" {
     unique  = true
