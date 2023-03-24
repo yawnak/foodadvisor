@@ -26,6 +26,7 @@ type User struct {
 type AdvisorRepo interface {
 	UserRepo
 	FoodRepo
+	RoleRepo
 }
 
 type Advisor interface {
@@ -35,6 +36,13 @@ type Advisor interface {
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
 	GenerateToken(ctx context.Context, username string, password string) (string, error)
 	ParseToken(ctx context.Context, token string) (int32, error)
+}
+
+type RoleRepo interface {
+	CreateRole(ctx context.Context, role *Role) error
+	GetRole(ctx context.Context, name string) (*Role, error)
+	UpdateRole(ctx context.Context, role *Role) error
+	DeleteRole(ctx context.Context, name string) error
 }
 
 type UserRepo interface {
