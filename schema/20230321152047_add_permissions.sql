@@ -1,4 +1,3 @@
-INSERT INTO permissions (name) 
-VALUES 
-('editRoles'),
-('editUserRole');
+INSERT INTO permissions (name)
+VALUES ('editRoles'),
+    ('editUserRole');
