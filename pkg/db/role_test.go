@@ -82,3 +82,19 @@ func TestDeleteRole(t *testing.T) {
 		t.Errorf("error deleting role: %s", err)
 	}
 }
+
+func TestGetUserRole(t *testing.T) {
+	dburl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		username, password, host, port, dbname)
+	foodRepo, err := Open(context.Background(), dburl)
+	if err != nil {
+		log.Fatalf("error opening db: %s", err)
+	}
+	defer foodRepo.Close()
+
+	role, err := foodRepo.GetUserRole(context.Background(), 1)
+	if err != nil {
+		t.Errorf("error getting user role: %s", err)
+	}
+	fmt.Println(role)
+}
