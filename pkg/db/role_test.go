@@ -98,3 +98,18 @@ func TestGetUserRole(t *testing.T) {
 	}
 	fmt.Println(role)
 }
+
+func TestUpdateUserRole(t *testing.T) {
+	dburl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		username, password, host, port, dbname)
+	foodRepo, err := Open(context.Background(), dburl)
+	if err != nil {
+		log.Fatalf("error opening db: %s", err)
+	}
+	defer foodRepo.Close()
+
+	err = foodRepo.UpdateUserRole(context.Background(), 2, `user`)
+	if err != nil {
+		t.Errorf("error updating user role: %s", err)
+	}
+}
