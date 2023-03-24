@@ -56,6 +56,7 @@ func (db *FoodDB) CreateRole(ctx context.Context, role domain.Role) error {
 }
 
 func (db *FoodDB) GetRole(ctx context.Context, name string) (*domain.Role, error) {
+	//get all permissions associated with role
 	t1 := goqu.T(permissionsToRolesTable)
 	t2 := goqu.T(roleTable)
 	t1role := t1.Col("role")
@@ -70,9 +71,10 @@ func (db *FoodDB) GetRole(ctx context.Context, name string) (*domain.Role, error
 	}
 	rows, err := db.pool.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, fmt.Errorf("error getting roles and permissions: %w", err)
+		return nil, fmt.Errorf("error querying roles and permissions: %w", err)
 	}
 	defer rows.Close()
+	//scan rows
 	var role domain.Role
 	role.Permissions = make(map[domain.Permission]struct{})
 
