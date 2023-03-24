@@ -17,7 +17,7 @@ const (
 	permissionsToRolesTable = "permissions_to_roles"
 )
 
-func (db *FoodDB) CreateRole(ctx context.Context, role domain.Role) error {
+func (db *FoodDB) CreateRole(ctx context.Context, role *domain.Role) error {
 	tx, err := db.pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return fmt.Errorf("error starting tx: %w", err)
