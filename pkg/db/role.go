@@ -33,9 +33,8 @@ func (db *FoodDB) CreateRole(ctx context.Context, role domain.Role) error {
 			if pgErr.Code == "23505" {
 				return domain.ErrDuplicateResourse
 			}
-		default:
-			return fmt.Errorf("error inserting role: %w", err)
 		}
+		return fmt.Errorf("error inserting role: %w", err)
 	}
 	rows := make([][]interface{}, 0, len(role.Permissions))
 	for permission := range role.Permissions {
