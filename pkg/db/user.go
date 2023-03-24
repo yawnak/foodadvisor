@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/doug-martin/goqu/v9"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -110,4 +111,52 @@ func (db *FoodDB) UpdateUser(ctx context.Context, user *domain.User) error {
 		return fmt.Errorf("error executring query: %w", err)
 	}
 	return err
+}
+
+func (db *FoodDB) GetUserRole(ctx context.Context, id int32) (*domain.Role, error) {
+	withds := goqu.Dialect("postgres").
+		Select("role").From(goqu.T(usersTable)).
+		Where(goqu.T(usersTable).Col("id").Eq(id)).
+		Prepared(true)
+	permT := goqu.T(permissionsToRolesTable)
+	sql, args, err := goqu.Dialect("postgres").
+		Select(permT.Col("role"), permT.Col("permission")).
+		With("t", withds).
+		From(goqu.T(permissionsToRolesTable)).
+		InnerJoin(goqu.T("t"),
+			goqu.On(permT.Col("role").Eq(goqu.T("t").Col("role")))).Prepared(true).ToSQL()
+	if err != nil {
+		return nil, fmt.Errorf("error building sql: %w", err)
+	}
+	rows, err := db.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying rows: %w", err)
+	}
+	defer rows.Close()
+	var roleName string
+	permissions := make([]domain.Permission, 0, 1)
+	for rows.Next() {
+		var temp domain.Permission
+		err := rows.Scan(&roleName, &temp)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+		permissions = append(permissions, temp)
+	}
+	if len(permissions) == 0 {
+		sql, args, err = goqu.Dialect("postgres").
+			Select("role").From(usersTable).
+			Where(
+				goqu.T(usersTable).Col("id").Eq(id)).
+			Prepared(true).ToSQL()
+		if err != nil {
+			return nil, fmt.Errorf("error building sql for select when role has 0 permissions: %w", err)
+		}
+		row := db.pool.QueryRow(ctx, sql, args...)
+		err = row.Scan(&roleName)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning single row: %w", err)
+		}
+	}
+	return domain.NewRole(roleName, permissions...), nil
 }
