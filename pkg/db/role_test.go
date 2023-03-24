@@ -26,7 +26,7 @@ func TestCreateRole(t *testing.T) {
 	}
 	defer foodRepo.Close()
 	err = foodRepo.CreateRole(context.Background(),
-		*domain.NewRole("owner", domain.PermEditRoles, domain.PermEditUserRole))
+		domain.NewRole("owner", domain.PermEditRoles, domain.PermEditUserRole))
 	if err != nil {
 		t.Errorf("error creating role: %s", err)
 	}
