@@ -93,3 +93,40 @@ func (db *FoodDB) GetRole(ctx context.Context, name string) (*domain.Role, error
 
 	return &role, nil
 }
+
+func (db *FoodDB) UpdateRole(ctx context.Context, role *domain.Role) error {
+	//tx begin
+	tx, err := db.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
+	if err != nil {
+		return fmt.Errorf("error acquiring transaction connection: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	//delete all permissions associated with role
+	delds := goqu.Dialect("postgres").Delete(goqu.T(permissionsToRolesTable)).Prepared(true).
+		Where(goqu.T(permissionsToRolesTable).Col("role").Eq(role.Name))
+	sql, args, err := delds.ToSQL()
+	if err != nil {
+		return fmt.Errorf("error building delete permissions sql exp: %w", err)
+	}
+	_, err = tx.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("error executing delete permissions sql: %w", err)
+	}
+	//add new permissions
+	rows := make([][]interface{}, 0, len(role.Permissions))
+	for permission := range role.Permissions {
+		rows = append(rows, []interface{}{role.Name, permission})
+	}
+
+	n, err := tx.CopyFrom(ctx, pgx.Identifier{permissionsToRolesTable},
+		[]string{"role", "permission"},
+		pgx.CopyFromRows(rows))
+
+	if err != nil {
+		fmt.Println("number of insertions", n)
+		return fmt.Errorf("error inserting permissions: %w", err)
+	}
+
+	tx.Commit(ctx)
+	return nil
+}
