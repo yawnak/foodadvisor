@@ -113,6 +113,23 @@ func (db *FoodDB) UpdateUser(ctx context.Context, user *domain.User) error {
 	return err
 }
 
+func (db *FoodDB) UpdateUserRole(ctx context.Context, id int32, role string) error {
+	usersT := goqu.T(usersTable)
+	sql, args, err := goqu.Dialect("postgres").
+		Update(usersT).
+		Set(goqu.I("role").Set(role)).
+		Where(usersT.Col("id").Eq(id)).
+		Prepared(true).ToSQL()
+	if err != nil {
+		return fmt.Errorf("error building sql: %w", err)
+	}
+	_, err = db.pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("error updating: %w", err)
+	}
+	return nil
+}
+
 func (db *FoodDB) GetUserRole(ctx context.Context, id int32) (*domain.Role, error) {
 	withds := goqu.Dialect("postgres").
 		Select("role").From(goqu.T(usersTable)).
