@@ -123,6 +123,13 @@ func (db *FoodDB) UpdateRole(ctx context.Context, role *domain.Role) error {
 		pgx.CopyFromRows(rows))
 
 	if err != nil {
+		var pgErr *pgconn.PgError
+		switch {
+		case errors.As(err, &pgErr):
+			if pgErr.Code == "23503" {
+				return domain.ErrResourseNotFound
+			}
+		}
 		fmt.Println("number of insertions", n)
 		return fmt.Errorf("error inserting permissions: %w", err)
 	}
