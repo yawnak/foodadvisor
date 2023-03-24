@@ -115,16 +115,16 @@ table permissions_to_roles {
   primary_key {
     columns = [column.role, column.permission]
   }
-    foreign_key "permissions_to_roles_permission_fkey" {
+  foreign_key "permissions_to_roles_permission_fkey" {
     columns     = [column.permission]
     ref_columns = [table.permissions.column.name]
-    on_update   = CASCADE
+    on_update   = NO_ACTION
     on_delete   = CASCADE
   }
   foreign_key "permissions_to_roles_role_fkey" {
     columns     = [column.role]
     ref_columns = [table.roles.column.name]
-    on_update   = CASCADE
+    on_update   = NO_ACTION
     on_delete   = CASCADE
   }
 }
