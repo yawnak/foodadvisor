@@ -70,7 +70,7 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 	return token.SignedString([]byte(signingKey))
 }
 
-func (adv *FoodAdvisor) ParseToken(ctx context.Context, token string) (int32, error) {
+func (adv *FoodAdvisor) parseClaims(ctx context.Context, token string) (*tokenClaims, error) {
 	accessToken, err := jwt.ParseWithClaims(token, &tokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, domain.ErrInvalidSigningMethod
@@ -81,16 +81,32 @@ func (adv *FoodAdvisor) ParseToken(ctx context.Context, token string) (int32, er
 		var validationError *jwt.ValidationError
 		switch {
 		case errors.As(err, &validationError):
-			return -1, domain.ErrBadToken
+			return nil, domain.ErrBadToken
 		default:
-			return -1, err
+			return nil, err
 		}
 	}
 	claims, ok := accessToken.Claims.(*tokenClaims)
 	if !ok {
-		return 0, domain.ErrBadToken
+		return nil, domain.ErrBadToken
+	}
+	return claims, nil
+}
+
+func (adv *FoodAdvisor) ParseToken(ctx context.Context, token string) (int32, error) {
+	claims, err := adv.parseClaims(ctx, token)
+	if err != nil {
+		return -1, err
 	}
 	return claims.UserID, nil
+}
+
+func (adv *FoodAdvisor) ParseTokenWithRole(ctx context.Context, token string) (int32, *domain.Role, error) {
+	claims, err := adv.parseClaims(ctx, token)
+	if err != nil {
+		return -1, nil, err
+	}
+	return claims.UserID, claims.Role, nil
 }
 
 func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
