@@ -17,8 +17,8 @@ const (
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserID int32       `json:"user_id"`
-	Role   domain.Role `json:"role"`
+	UserID int32        `json:"user_id"`
+	Role   *domain.Role `json:"role"`
 }
 
 type FoodAdvisor struct {
