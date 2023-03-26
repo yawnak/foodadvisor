@@ -32,12 +32,12 @@ func retrieveUserId(ctx context.Context) (int32, bool) {
 	id, ok := ctx.Value(keyUserId).(int32)
 	return id, ok
 }
-		id, err := srv.app.ParseToken(r.Context(), cookie.Value)
-		if err != nil {
-			switch {
-			case errors.Is(err, domain.ErrBadToken):
-				writeErrorAsJSON(w, http.StatusUnauthorized, err)
-				return
+
+func retrieveRole(ctx context.Context) (*domain.Role, bool) {
+	role, ok := ctx.Value(keyRole).(*domain.Role)
+	return role, ok
+}
+
 			case errors.Is(err, domain.ErrInvalidSigningMethod):
 				writeErrorAsJSON(w, http.StatusUnauthorized, err)
 				return
