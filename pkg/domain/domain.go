@@ -37,6 +37,7 @@ type Advisor interface {
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
 	GenerateToken(ctx context.Context, username string, password string) (string, error)
 	ParseToken(ctx context.Context, token string) (int32, error)
+	ParseTokenWithRole(ctx context.Context, token string) (int32, *Role, error)
 }
 
 type RoleRepo interface {
