@@ -38,20 +38,23 @@ func retrieveRole(ctx context.Context) (*domain.Role, bool) {
 	return role, ok
 }
 
-			case errors.Is(err, domain.ErrInvalidSigningMethod):
-				writeErrorAsJSON(w, http.StatusUnauthorized, err)
-				return
-			default:
-				log.Println(err)
-				writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("error validating auth token cookie"))
+func confirmPermissions(permissions ...domain.Permission) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			role, ok := retrieveRole(r.Context())
+			if !ok {
+				writeErrorAsJSON(w, http.StatusUnauthorized, fmt.Errorf("role is missing"))
 				return
 			}
-		}
-		next(w, r.WithContext(context.WithValue(r.Context(), keyUserId, id)))
-	}
-}
 
-func retrieveUserId(ctx context.Context) (int32, bool) {
-	id, ok := ctx.Value(keyUserId).(int32)
-	return id, ok
+			for _, p := range permissions {
+				_, ok := role.Permissions[p]
+				if !ok {
+					writeErrorAsJSON(w, http.StatusUnauthorized, fmt.Errorf("permissions %s is missing", p))
+					return
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
