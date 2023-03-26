@@ -27,11 +27,11 @@ func (srv *Server) authenticate(next http.Handler) http.Handler {
 		srv.authTokenToContext(next.ServeHTTP)(w, r)
 	})
 }
-			case errors.Is(err, http.ErrNoCookie):
-				writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("cookie with auth token is not present"))
-				return
-			}
-		}
+
+func retrieveUserId(ctx context.Context) (int32, bool) {
+	id, ok := ctx.Value(keyUserId).(int32)
+	return id, ok
+}
 		id, err := srv.app.ParseToken(r.Context(), cookie.Value)
 		if err != nil {
 			switch {
