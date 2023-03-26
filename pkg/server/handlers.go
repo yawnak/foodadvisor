@@ -4,4 +4,5 @@ type key int
 
 const (
 	keyUserId key = iota
+	keyRole
 )
