@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
-	"errors"
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/golang/gddo/httputil/header"
+	"github.com/gorilla/mux"
 	"github.com/yawnak/foodadvisor/pkg/domain"
 )
 
