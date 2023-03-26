@@ -22,11 +22,11 @@ func validateContentJSON(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (srv *Server) auth(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(authCookieName)
-		if err != nil {
-			switch {
+func (srv *Server) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		srv.authTokenToContext(next.ServeHTTP)(w, r)
+	})
+}
 			case errors.Is(err, http.ErrNoCookie):
 				writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("cookie with auth token is not present"))
 				return

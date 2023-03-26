@@ -135,3 +135,34 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	})
 	w.WriteHeader(http.StatusOK)
 }
+
+func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(authCookieName)
+		if err != nil {
+			switch {
+			case errors.Is(err, http.ErrNoCookie):
+				writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("cookie with auth token is not present"))
+				return
+			}
+		}
+		id, role, err := srv.app.ParseTokenWithRole(r.Context(), cookie.Value)
+		if err != nil {
+			switch {
+			case errors.Is(err, domain.ErrBadToken):
+				writeErrorAsJSON(w, http.StatusUnauthorized, err)
+				return
+			case errors.Is(err, domain.ErrInvalidSigningMethod):
+				writeErrorAsJSON(w, http.StatusUnauthorized, err)
+				return
+			default:
+				log.Println(err)
+				writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("error validating auth token cookie"))
+				return
+			}
+		}
+		ctxnext := context.WithValue(r.Context(), keyUserId, id)
+		ctxnext = context.WithValue(ctxnext, keyRole, role)
+		next(w, r.WithContext(ctxnext))
+	}
+}
