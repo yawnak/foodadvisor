@@ -52,13 +52,20 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 			return "", fmt.Errorf("error generating token: %w", err)
 		}
 	}
+	//retrieving user role
+	role, err := c.db.GetUserRole(ctx, user.Id)
+	if err != nil {
+		return "", fmt.Errorf("error getting user role: %w", err)
+	}
+
 	//creating jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
-		jwt.StandardClaims{
+		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(domain.TokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		user.Id,
+		UserID: user.Id,
+		Role:   role,
 	})
 	return token.SignedString([]byte(signingKey))
 }
