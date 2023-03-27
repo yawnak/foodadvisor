@@ -140,6 +140,10 @@ func (adv *FoodAdvisor) GetUserByCredentials(ctx context.Context, username strin
 	return user, nil
 }
 
+func (adv *FoodAdvisor) SetUserRole(ctx context.Context, id int32, role string) error {
+	return adv.db.UpdateUserRole(ctx, id, role)
+}
+
 func (adv *FoodAdvisor) CreateFood(ctx context.Context, food *domain.Food) (int32, error) {
 	id, err := adv.db.CreateFood(ctx, food)
 	if err != nil {
