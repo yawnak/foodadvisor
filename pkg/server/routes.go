@@ -10,19 +10,22 @@ import (
 )
 
 func (srv *Server) initAPIRoutes() {
+	// /api subrouter
 	api := srv.router.PathPrefix("/api").Subrouter()
+
+	//sign up endpoints
 	api.HandleFunc("/signup", validateContentJSON(srv.signup)).Methods("POST")
 	api.HandleFunc("/login", validateContentJSON(srv.login)).Methods("POST")
 
-	api.HandleFunc("/profile", srv.authTokenToContext(func(w http.ResponseWriter, r *http.Request) {
-		id, ok := retrieveUserId(r.Context())
-		if !ok {
-			writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("ERROR: not authorized"))
-			log.Fatalln("srv.auth didn't work. no userid in context")
-			return
-		}
-		fmt.Fprintf(w, "hello user number: %d", id)
-	})).Methods("GET")
+	// /api/users/ routes
+	//users := api.PathPrefix("/users").Subrouter()
+	usersAuth := api.PathPrefix("/users").Subrouter()
+
+	usersAuth.Use(srv.authenticate)
+
+	usersAuthAndPerms := usersAuth.PathPrefix("").Subrouter()
+	usersAuthAndPerms.Use(confirmPermissions(domain.PermEditUserRole))
+	usersAuthAndPerms.HandleFunc("/{id:[0-9]+}/role", srv.setUserRole).Methods("POST")
 
 	roles := api.PathPrefix("/roles").Subrouter()
 	roles.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
