@@ -32,6 +32,7 @@ type AdvisorRepo interface {
 
 type Advisor interface {
 	CreateUser(ctx context.Context, user *User) (int32, error)
+	SetUserRole(ctx context.Context, id int32, role string) error
 	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
 	CreateFood(ctx context.Context, food *Food) (int32, error)
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
