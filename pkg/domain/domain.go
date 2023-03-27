@@ -55,6 +55,7 @@ type UserRepo interface {
 	DeleteUser(ctx context.Context, id int32) error
 	GetUserByUsername(ctx context.Context, username string) (*User, error)
 	GetUserRole(ctx context.Context, id int32) (*Role, error)
+	UpdateUserRole(ctx context.Context, id int32, role string) error
 }
 
 type Ingridient struct {
