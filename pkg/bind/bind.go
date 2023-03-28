@@ -36,18 +36,18 @@ func (b *JSONBinder) Bind(dest any, w http.ResponseWriter, body io.ReadCloser, o
 		var unmarshalTypeError *json.UnmarshalTypeError
 		switch {
 		case errors.As(err, &syntaxError):
-			return ErrSyntax{Offset: syntaxError.Offset}
+			return &ErrSyntax{Offset: syntaxError.Offset}
 		case errors.Is(err, io.ErrUnexpectedEOF):
 			return ErrBadFormat
 		case errors.As(err, &unmarshalTypeError):
-			return ErrUnmarshalType{
+			return &ErrUnmarshalType{
 				Field:  unmarshalTypeError.Field,
 				Offset: unmarshalTypeError.Offset,
 				Type:   unmarshalTypeError.Type.Name(),
 			}
 		case strings.HasPrefix(err.Error(), "json: unknown field "):
 			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
-			return ErrUnkownField{Field: fieldName}
+			return &ErrUnkownField{Field: fieldName}
 		case errors.Is(err, io.EOF):
 			return ErrEmptyBody
 		case err.Error() == "http: request body too large":
