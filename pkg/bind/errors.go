@@ -21,7 +21,7 @@ type ErrUnkownField struct {
 	Field string
 }
 
-func (err ErrUnkownField) Error() string {
+func (err *ErrUnkownField) Error() string {
 	return fmt.Sprintf("unknown field: %s", err.Field)
 }
 
@@ -29,7 +29,7 @@ type ErrSyntax struct {
 	Offset int64
 }
 
-func (err ErrSyntax) Error() string {
+func (err *ErrSyntax) Error() string {
 	return fmt.Sprintf("bad syntax at position %d", err.Offset)
 }
 
@@ -39,7 +39,7 @@ type ErrUnmarshalType struct {
 	Type   string
 }
 
-func (err ErrUnmarshalType) Error() string {
+func (err *ErrUnmarshalType) Error() string {
 	return fmt.Sprintf("invalid value for field %s at position %d (expected type %v)", err.Field, err.Offset, err.Type)
 }
 
