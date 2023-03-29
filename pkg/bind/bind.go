@@ -17,6 +17,13 @@ type Options struct {
 	DisallowUnknownFields bool
 }
 
+var (
+	defaultOptions = Options{
+		MaxBytes:              0,
+		DisallowUnknownFields: false,
+	}
+)
+
 type JSONBinder struct {
 }
 
