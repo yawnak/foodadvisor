@@ -73,9 +73,11 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		Value:   token,
 		Expires: time.Now().Add(domain.TokenTTL),
 	})
-
+	//TODO: make proper response
 	fmt.Fprint(w, id)
 }
+
+//TODO: add request parsing using bind package and request validation
 
 func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	var err error
