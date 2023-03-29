@@ -27,7 +27,10 @@ var (
 type JSONBinder struct {
 }
 
-func (b *JSONBinder) Bind(dest any, w http.ResponseWriter, body io.ReadCloser, options Options) error {
+func (b *JSONBinder) Bind(dest any, w http.ResponseWriter, body io.ReadCloser, options *Options) error {
+	if options == nil {
+		options = &defaultOptions
+	}
 	//unmarshaling request to domain.User
 	if options.MaxBytes != 0 {
 		body = http.MaxBytesReader(w, body, 1<<20) //set maximum size of request body to 1mb
