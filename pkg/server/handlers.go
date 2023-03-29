@@ -24,6 +24,8 @@ type setUserRoleRequest struct {
 	Role string `json:"role"`
 }
 
+//TODO: use bind package to parse request and validate request data
+
 func (srv *Server) setUserRole(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
