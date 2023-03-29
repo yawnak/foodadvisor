@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/xorcare/pointer"
 )
 
 type Test struct {
@@ -70,7 +72,7 @@ func TestJSONBind(t *testing.T) {
 			t.Errorf("test %d. error making request: %s", i, err)
 		}
 		rec := &httptest.ResponseRecorder{}
-		err = binder.Bind(v.dest, rec, req.Body, v.options)
+		err = binder.Bind(v.dest, rec, req.Body, &v.options)
 		if err != nil {
 			switch {
 			case v.expErr == nil:
@@ -83,4 +85,10 @@ func TestJSONBind(t *testing.T) {
 		fmt.Printf("test %d PASS.\nbinding error: %v,\nexpected error: %v\n", i, err, v.expErr)
 		fmt.Println("res:", v.dest)
 	}
+}
+
+func TestStuff(t *testing.T) {
+	err := error(&ErrUnknownField{Field: "pudge"})
+
+	fmt.Println(errors.As(err, pointer.Of(&ErrUnknownField{})))
 }
