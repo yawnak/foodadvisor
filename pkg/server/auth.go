@@ -51,9 +51,20 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 	//creating user
 	id, err := srv.app.CreateUser(r.Context(), &user)
 	if err != nil {
-		fmt.Fprintf(w, "error creating user: %s", err)
+		switch {
+		case errors.Is(err, domain.ErrDuplicateResourse): //if user already exists
+			writeErrorAsJSON(w, http.StatusBadRequest, domain.ErrDuplicateResourse)
+			return
+		case errors.Is(err, domain.ErrPasswordTooLong): //if password is too long (this shouldn't happen because of validation)
+			writeErrorAsJSON(w, http.StatusBadRequest, domain.ErrPasswordTooLong)
+			return
+		}
+		//everything else is logged and user recieves internal server error
+		log.Printf("unexpected error creating user: %s", err)
+		writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("unexpected error while creating user"))
 		return
 	}
+	//token generation
 	token, err := srv.app.GenerateToken(r.Context(), user.Username, user.Password)
 	if err != nil {
 		log.Println("error when generating token after signup:", err)
