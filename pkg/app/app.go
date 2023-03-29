@@ -114,9 +114,9 @@ func (adv *FoodAdvisor) CreateUser(ctx context.Context, user *domain.User) (int3
 	bpass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	switch {
 	case errors.Is(err, bcrypt.ErrPasswordTooLong):
-		return -1, fmt.Errorf("error creating user: %w", domain.ErrPasswordTooLong)
+		return -1, domain.ErrPasswordTooLong
 	case err != nil:
-		return -1, fmt.Errorf("unknown error creating user: %w", err)
+		return -1, fmt.Errorf("unknown error generating passhash: %w", err)
 	}
 	temp := *user
 	temp.Password = string(bpass)
