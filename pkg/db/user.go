@@ -8,6 +8,7 @@ import (
 	"github.com/doug-martin/goqu/v9"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/yawnak/foodadvisor/pkg/domain"
 )
