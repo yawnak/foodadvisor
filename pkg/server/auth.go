@@ -71,6 +71,7 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("error creating auth token"))
 		return
 	}
+	//setting cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:    authCookieName,
 		Value:   token,
