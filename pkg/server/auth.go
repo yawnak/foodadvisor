@@ -41,6 +41,14 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		writeErrorAsJSON(w, status, err)
 		return
 	}
+	//struct validation
+	err = srv.validate.Struct(userReq)
+	if err != nil {
+		writeErrorAsJSON(w, http.StatusBadRequest, err)
+		return
+	}
+	user = domain.User(userReq) //converting requestSignup to domain.User
+	//creating user
 	id, err := srv.app.CreateUser(r.Context(), &user)
 	if err != nil {
 		fmt.Fprintf(w, "error creating user: %s", err)
