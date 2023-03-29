@@ -22,6 +22,7 @@ type userRepo struct {
 	Username       pgtype.Text     `db:"username" fieldtag:"details"`
 	Password       pgtype.Text     `db:"passhash" fieldtag:"details"`
 	ExpirationDays pgtype.Interval `db:"expiration" fieldtag:"details"` //in days
+	Role           pgtype.Text     `db:"role" fieldtag:"role"`
 }
 
 func userToUserRepo(user *domain.User) *userRepo {
@@ -32,6 +33,7 @@ func userToUserRepo(user *domain.User) *userRepo {
 	res.Password.Scan(user.Password)
 	res.ExpirationDays.Days = user.ExpirationDays
 	res.ExpirationDays.Valid = true
+	res.Role.Scan(user.Role)
 	return &res
 }
 
@@ -41,6 +43,9 @@ func userRepotouser(u *userRepo) *domain.User {
 	res.Username = u.Username.String
 	res.Password = u.Password.String
 	res.ExpirationDays = u.ExpirationDays.Days
+	if u.Role.Valid {
+		res.Role = &u.Role.String
+	}
 	return &res
 }
 
