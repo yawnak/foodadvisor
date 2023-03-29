@@ -85,7 +85,14 @@ func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int32, err
 	var id int32
 	err := row.Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("error scanning returning id: %w", err)
+		var pgErr *pgconn.PgError
+		switch {
+		case errors.As(err, &pgErr):
+			if pgErr.Code == "23505" {
+				return -1, domain.ErrDuplicateResourse
+			}
+		}
+		return -1, fmt.Errorf("error scanning: %w", err)
 	}
 	return id, nil
 }
