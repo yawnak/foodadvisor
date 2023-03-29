@@ -46,7 +46,7 @@ func TestJSONBind(t *testing.T) {
 				"food": "food",
 			},
 			options: Options{DisallowUnknownFields: true},
-			expErr:  &ErrUnkownField{Field: "food"},
+			expErr:  &ErrUnknownField{Field: "food"},
 		},
 		{
 			dest: &Test1{},

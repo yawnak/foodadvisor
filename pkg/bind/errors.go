@@ -17,11 +17,11 @@ func (err *ErrUnknown) Unwrap() error {
 	return err.Err
 }
 
-type ErrUnkownField struct {
+type ErrUnknownField struct {
 	Field string
 }
 
-func (err *ErrUnkownField) Error() string {
+func (err *ErrUnknownField) Error() string {
 	return fmt.Sprintf("unknown field: %s", err.Field)
 }
 

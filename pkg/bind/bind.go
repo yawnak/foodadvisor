@@ -57,7 +57,7 @@ func (b *JSONBinder) Bind(dest any, w http.ResponseWriter, body io.ReadCloser, o
 			}
 		case strings.HasPrefix(err.Error(), "json: unknown field "):
 			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
-			return &ErrUnkownField{Field: fieldName}
+			return &ErrUnknownField{Field: fieldName}
 		case errors.Is(err, io.EOF):
 			return ErrEmptyBody
 		case err.Error() == "http: request body too large":
