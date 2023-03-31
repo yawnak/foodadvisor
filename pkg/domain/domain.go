@@ -16,12 +16,26 @@ type Questionary struct {
 	DishType    *string
 }
 
+type userCtxKey struct{}
+
 type User struct {
 	Id             int32   `json:"id"`
 	Username       string  `json:"username"`
 	Password       string  `json:"password"`
 	ExpirationDays int32   `json:"expiration"` //in days
 	Role           *string `json:"role"`
+}
+
+func (u *User) ToContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, userCtxKey{}, u)
+}
+
+func UserFromContext(ctx context.Context) (*User, bool) {
+	user, ok := ctx.Value(userCtxKey{}).(*User)
+	if !ok {
+		return nil, false
+	}
+	return user, true
 }
 
 type AdvisorRepo interface {
