@@ -20,8 +20,18 @@ const (
 	keyRole
 )
 
-type setUserRoleRequest struct {
-	Role string `json:"role"`
+type Successer interface {
+	Success() string
+	Status() int
+}
+
+func writeSuccess(w http.ResponseWriter, success Successer) {
+	w.WriteHeader(success.Status())
+	_ = json.NewEncoder(w).Encode(success)
+}
+
+func writeSuccessOK(w http.ResponseWriter, message string) {
+	writeSuccess(w, responseSuccess{SuccessMessage: message, HTTPStatusCode: http.StatusOK})
 }
 
 //TODO: use bind package to parse request and validate request data
