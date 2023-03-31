@@ -2,13 +2,9 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/yawnak/foodadvisor/pkg/bind"
@@ -77,51 +73,45 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 		Value:   token,
 		Expires: time.Now().Add(domain.TokenTTL),
 	})
-	//TODO: make proper response
-	fmt.Fprint(w, id)
-}
 
-//TODO: add request parsing using bind package and request validation
+	writeSuccess(w, responseSignup{
+		UserId: id,
+		responseSuccess: responseSuccess{
+			HTTPStatusCode: http.StatusOK,
+			SuccessMessage: "ok",
+		},
+	})
+}
 
 func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	var err error
 	//unmarshaling request to domain.User
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) //set maximum size of request body to 1mb
-	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields() //will not allow sending unknown fields in request
 	var credentials requestLogin
-	err = dec.Decode(&credentials)
+	binder := bind.JSONBinder{}
+	err = binder.Bind(&credentials, w, r.Body, &bind.Options{
+		MaxBytes:              1 << 20,
+		DisallowUnknownFields: true,
+	})
 	//processing errors
-	if err != nil {
-		var syntaxError *json.SyntaxError
-		var unmarshalTypeError *json.UnmarshalTypeError
-		switch {
-		case errors.As(err, &syntaxError):
-			err = fmt.Errorf("request body contains bad JSON (at position %d)", syntaxError.Offset)
-			writeErrorAsJSON(w, http.StatusBadRequest, err)
-			return
-		case errors.Is(err, io.ErrUnexpectedEOF):
-			err = errors.New("request body contains badly-formed JSON")
-			writeErrorAsJSON(w, http.StatusBadRequest, err)
-			return
-		case errors.As(err, &unmarshalTypeError):
-			err = fmt.Errorf("request body contains an invalid value for the %q field (at position %d)", unmarshalTypeError.Field, unmarshalTypeError.Offset)
-			writeErrorAsJSON(w, http.StatusBadRequest, err)
-			return
-		case strings.HasPrefix(err.Error(), "json: unknown field "):
-			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
-			err = fmt.Errorf("request body contains unknown field %s", fieldName)
-			writeErrorAsJSON(w, http.StatusBadRequest, err)
-			return
-		case errors.Is(err, io.EOF):
-			writeErrorAsJSON(w, http.StatusBadRequest, ErrEmptyRequestBody)
-			return
-		default:
-			log.Print(err.Error())
-			writeErrorAsJSON(w, http.StatusInternalServerError, ErrInternal)
-			return
-		}
+	switch status := bindingErrorToHTTPStatus(err); status {
+	case http.StatusOK:
+	case http.StatusInternalServerError:
+		log.Printf("unexpected error binding requestLogin: %s", err)
+		writeErrorAsJSON(w, status, errors.New("unexpected error while parsing request body"))
+		return
+	default:
+		writeErrorAsJSON(w, status, err)
+		return
 	}
+
+	//struct validation
+	err = srv.validate.Struct(credentials)
+	if err != nil {
+		writeErrorAsJSON(w, http.StatusBadRequest, err)
+		return
+	}
+
+	//token generation
 	token, err := srv.app.GenerateToken(r.Context(), credentials.Username, credentials.Password)
 	if err != nil {
 		switch {
@@ -134,12 +124,14 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	//setting cookie with auth token
 	http.SetCookie(w, &http.Cookie{
 		Name:    authCookieName,
 		Value:   token,
 		Expires: time.Now().Add(domain.TokenTTL),
 	})
-	w.WriteHeader(http.StatusOK)
+
+	writeSuccessOK(w, "ok")
 }
 
 func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
