@@ -4,6 +4,9 @@ type requestLogin struct {
 	Username string `json:"username" validate:"required,alphanumwithunderscore,usernamemax"`
 	Password string `json:"password" validate:"required,alphanumwithunderscore,passwordmax"`
 }
+
+type setUserRoleRequest struct {
+	Role string `json:"role"`
 }
 
 type requestSignup struct {
