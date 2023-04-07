@@ -19,11 +19,14 @@ type Server struct {
 
 func NewServer(app domain.Advisor) (*Server, error) {
 	srv := Server{
-		app:    app,
-		router: chi.NewRouter(),
+		app: app,
+		//router: chi.NewRouter(),
 	}
 
-	srv.router.Mount("/api", srv.initAPIRoutes())
+	rr := chi.NewRouter()
+	rr.Mount("/api", srv.initAPIRoutes())
+	srv.router = rr
+
 	srv.initValidator()
 	return &srv, nil
 }
