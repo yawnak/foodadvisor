@@ -17,7 +17,7 @@ type Role struct {
 }
 
 func (u *Role) ToContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, userCtxKey{}, u)
+	return context.WithValue(ctx, roleCtxKey{}, u)
 }
 
 func RoleFromContext(ctx context.Context) (*Role, bool) {
