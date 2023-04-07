@@ -87,4 +87,10 @@ func bindingErrorToHTTPStatus(err error) int {
 	return http.StatusOK
 }
 
-
+func ToMiddleware(hf http.HandlerFunc) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			hf(w, r)
+		})
+	}
+}
