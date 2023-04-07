@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/golang/gddo/httputil/header"
@@ -27,7 +28,9 @@ func ConfirmPermissions(permissions ...domain.Permission) mux.MiddlewareFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			role, ok := domain.RoleFromContext(r.Context())
 			if !ok {
-				exception.WriteErrorAsJSON(w, http.StatusUnauthorized, fmt.Errorf("role is missing"))
+				log.Println("error: no role in context")
+				exception.WriteErrorAsJSON(w, http.StatusInternalServerError,
+					fmt.Errorf("unknown error while parsing permissions"))
 				return
 			}
 
