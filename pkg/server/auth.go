@@ -9,6 +9,7 @@ import (
 
 	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/bind"
+	"github.com/yawnak/foodadvisor/pkg/server/exception"
 )
 
 const (
@@ -31,16 +32,16 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 	case http.StatusOK: //if ok continue
 	case http.StatusInternalServerError: //if internal server error log it
 		log.Printf("unknown error while binding requestSignup: %s", err)
-		writeErrorAsJSON(w, status, errors.New("unknown error while parsing request body"))
+		exception.WriteErrorAsJSON(w, status, errors.New("unknown error while parsing request body"))
 		return
 	default: //other errors are printed to user
-		writeErrorAsJSON(w, status, err)
+		exception.WriteErrorAsJSON(w, status, err)
 		return
 	}
 	//struct validation
 	err = srv.validate.Struct(userReq)
 	if err != nil {
-		writeErrorAsJSON(w, http.StatusBadRequest, err)
+		exception.WriteErrorAsJSON(w, http.StatusBadRequest, err)
 		return
 	}
 	user = domain.User(userReq) //converting requestSignup to domain.User
@@ -49,22 +50,22 @@ func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrDuplicateResourse): //if user already exists
-			writeErrorAsJSON(w, http.StatusBadRequest, domain.ErrDuplicateResourse)
+			exception.WriteErrorAsJSON(w, http.StatusBadRequest, domain.ErrDuplicateResourse)
 			return
 		case errors.Is(err, domain.ErrPasswordTooLong): //if password is too long (this shouldn't happen because of validation)
-			writeErrorAsJSON(w, http.StatusBadRequest, domain.ErrPasswordTooLong)
+			exception.WriteErrorAsJSON(w, http.StatusBadRequest, domain.ErrPasswordTooLong)
 			return
 		}
 		//everything else is logged and user recieves internal server error
 		log.Printf("unexpected error creating user: %s", err)
-		writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("unexpected error while creating user"))
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("unexpected error while creating user"))
 		return
 	}
 	//token generation
 	token, err := srv.app.GenerateToken(r.Context(), user.Username, user.Password)
 	if err != nil {
 		log.Println("error when generating token after signup:", err)
-		writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("error creating auth token"))
+		exception.WriteErrorAsJSON(w, http.StatusUnauthorized, errors.New("error creating auth token"))
 		return
 	}
 	//setting cookie
@@ -97,17 +98,17 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	case http.StatusOK:
 	case http.StatusInternalServerError:
 		log.Printf("unexpected error binding requestLogin: %s", err)
-		writeErrorAsJSON(w, status, errors.New("unexpected error while parsing request body"))
+		exception.WriteErrorAsJSON(w, status, errors.New("unexpected error while parsing request body"))
 		return
 	default:
-		writeErrorAsJSON(w, status, err)
+		exception.WriteErrorAsJSON(w, status, err)
 		return
 	}
 
 	//struct validation
 	err = srv.validate.Struct(credentials)
 	if err != nil {
-		writeErrorAsJSON(w, http.StatusBadRequest, err)
+		exception.WriteErrorAsJSON(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -116,11 +117,11 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrWrongCredentials):
-			writeErrorAsJSON(w, http.StatusUnauthorized, err)
+			exception.WriteErrorAsJSON(w, http.StatusUnauthorized, err)
 			return
 		default:
 			log.Println("error generating token while login:", err)
-			writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("error generating auth token"))
+			exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("error generating auth token"))
 			return
 		}
 	}
@@ -140,7 +141,7 @@ func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, http.ErrNoCookie):
-				writeErrorAsJSON(w, http.StatusUnauthorized, errors.New("cookie with auth token is not present"))
+				exception.WriteErrorAsJSON(w, http.StatusUnauthorized, errors.New("cookie with auth token is not present"))
 				return
 			}
 		}
@@ -148,14 +149,14 @@ func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, domain.ErrBadToken):
-				writeErrorAsJSON(w, http.StatusUnauthorized, err)
+				exception.WriteErrorAsJSON(w, http.StatusUnauthorized, err)
 				return
 			case errors.Is(err, domain.ErrInvalidSigningMethod):
-				writeErrorAsJSON(w, http.StatusUnauthorized, err)
+				exception.WriteErrorAsJSON(w, http.StatusUnauthorized, err)
 				return
 			default:
 				log.Println(err)
-				writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("error validating auth token cookie"))
+				exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("error validating auth token cookie"))
 				return
 			}
 		}
@@ -163,4 +164,10 @@ func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
 		ctxnext = context.WithValue(ctxnext, keyRole, role)
 		next(w, r.WithContext(ctxnext))
 	}
+}
+
+func (srv *Server) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		srv.authTokenToContext(next.ServeHTTP)(w, r)
+	})
 }
