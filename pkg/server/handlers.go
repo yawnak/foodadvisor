@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/yawnak/foodadvisor/pkg/bind"
+	"github.com/yawnak/foodadvisor/pkg/server/exception"
 )
 
 type key int
@@ -37,7 +38,7 @@ func (srv *Server) setUserRole(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		log.Printf("error retrieving id from URL: %s", err)
-		writeErrorAsJSON(w, http.StatusInternalServerError, errors.New("UNEXPECTED ERROR"))
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("UNEXPECTED ERROR"))
 		return
 	}
 	//unmarshaling request to domain.User
@@ -51,17 +52,17 @@ func (srv *Server) setUserRole(w http.ResponseWriter, r *http.Request) {
 	case http.StatusOK:
 	case http.StatusInternalServerError:
 		log.Printf("unexpected error binding setUseRoleRequest: %s", err)
-		writeErrorAsJSON(w, status, errors.New("unexpected error parsing request body"))
+		exception.WriteErrorAsJSON(w, status, errors.New("unexpected error parsing request body"))
 		return
 	default:
-		writeErrorAsJSON(w, status, err)
+		exception.WriteErrorAsJSON(w, status, err)
 		return
 	}
 
 	err = srv.app.SetUserRole(r.Context(), int32(id), roleReq.Role)
 	if err != nil {
 		log.Println("error updating user role", err)
-		writeErrorAsJSON(w, http.StatusInternalServerError, fmt.Errorf("unknown error"))
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, fmt.Errorf("unknown error"))
 		return
 	}
 	writeSuccessOK(w, "ok")
