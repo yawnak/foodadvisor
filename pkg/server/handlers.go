@@ -61,8 +61,13 @@ func (srv *Server) setUserRole(w http.ResponseWriter, r *http.Request) {
 
 	err = srv.app.SetUserRole(r.Context(), int32(id), roleReq.Role)
 	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrResourseNotFound):
+			exception.WriteErrorAsJSON(w, http.StatusNotFound, err)
+			return
+		}
 		log.Println("error updating user role", err)
-		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, fmt.Errorf("unknown error"))
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
 		return
 	}
 	writeSuccessOK(w, "ok")
