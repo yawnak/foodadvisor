@@ -141,6 +141,15 @@ func (db *FoodDB) UpdateUserRole(ctx context.Context, id int32, role string) err
 	var returningId int32
 	err = row.Scan(&returningId)
 	if err != nil {
+		var pgerr *pgconn.PgError
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return domain.ErrResourseNotFound
+		case errors.As(err, &pgerr):
+			if pgerr.Code == "23503" {
+				return domain.ErrResourseNotFound
+			}
+		}
 		return fmt.Errorf("error updating: %w", err)
 	}
 	return nil
