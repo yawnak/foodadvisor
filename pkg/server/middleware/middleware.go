@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -23,20 +22,10 @@ func ValidateContentJSON(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func retrieveUserId(ctx context.Context) (int32, bool) {
-	id, ok := ctx.Value(keyUserId).(int32)
-	return id, ok
-}
-
-func retrieveRole(ctx context.Context) (*domain.Role, bool) {
-	role, ok := ctx.Value(keyRole).(*domain.Role)
-	return role, ok
-}
-
 func ConfirmPermissions(permissions ...domain.Permission) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			role, ok := retrieveRole(r.Context())
+			role, ok := domain.RoleFromContext(r.Context())
 			if !ok {
 				exception.WriteErrorAsJSON(w, http.StatusUnauthorized, fmt.Errorf("role is missing"))
 				return

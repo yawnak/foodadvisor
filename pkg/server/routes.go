@@ -31,7 +31,7 @@ func (srv *Server) initAPIRoutes() {
 
 	roles := api.PathPrefix("/roles").Subrouter()
 	roles.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		role, ok := middleware.RetrieveRole(r.Context())
+		role, ok := domain.RoleFromContext(r.Context())
 		log.Println("ROLES")
 		if !ok {
 			exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("not authorized"))
