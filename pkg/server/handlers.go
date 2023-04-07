@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
+	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/bind"
 	"github.com/yawnak/foodadvisor/pkg/server/exception"
 )
