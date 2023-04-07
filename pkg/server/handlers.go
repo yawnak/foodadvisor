@@ -35,7 +35,7 @@ func writeSuccessOK(w http.ResponseWriter, message string) {
 }
 
 func (srv *Server) setUserRole(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		log.Printf("error retrieving id from URL: %s", err)
 		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("UNEXPECTED ERROR"))
