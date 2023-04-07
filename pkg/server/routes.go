@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	xhttp "github.com/m3db/m3/src/x/net/http"
 	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/server/exception"
 	"github.com/yawnak/foodadvisor/pkg/server/middleware"
@@ -17,13 +16,13 @@ import (
 func (srv *Server) initAPIRoutes() http.Handler {
 	// /api subrouter
 	r := chi.NewRouter()
-	r.Use(chimiddleware.AllowContentType(xhttp.ContentTypeJSON))
+	r.Use(chimiddleware.AllowContentType("application/json"))
 
 	//sign up endpoints
 	r.Post("/signup", srv.signup)
 	r.Post("/login", srv.login)
 
-	// /api/users/ routes
+	// // /api/users/ routes
 	r.With(srv.authenticate).Mount("/users", srv.initUserRoutes())
 
 	return r
