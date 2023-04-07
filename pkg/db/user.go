@@ -132,11 +132,14 @@ func (db *FoodDB) UpdateUserRole(ctx context.Context, id int32, role string) err
 		Update(usersT).
 		Set(goqu.I("role").Set(role)).
 		Where(usersT.Col("id").Eq(id)).
+		Returning("id").
 		Prepared(true).ToSQL()
 	if err != nil {
 		return fmt.Errorf("error building sql: %w", err)
 	}
-	_, err = db.pool.Exec(ctx, sql, args...)
+	row := db.pool.QueryRow(ctx, sql, args...)
+	var returningId int32
+	err = row.Scan(&returningId)
 	if err != nil {
 		return fmt.Errorf("error updating: %w", err)
 	}
