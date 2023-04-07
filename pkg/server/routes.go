@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/yawnak/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 func (srv *Server) initAPIRoutes() {
