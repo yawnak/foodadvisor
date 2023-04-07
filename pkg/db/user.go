@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/yawnak/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 var (

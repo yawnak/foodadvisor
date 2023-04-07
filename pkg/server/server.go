@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
-	"github.com/yawnak/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 type Server struct {

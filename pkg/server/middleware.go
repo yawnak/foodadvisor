@@ -9,8 +9,8 @@ import (
 	"github.com/golang/gddo/httputil/header"
 	"github.com/gorilla/mux"
 	"github.com/xorcare/pointer"
+	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/bind"
-	"github.com/yawnak/foodadvisor/pkg/domain"
 )
 
 // validates that request content type is set to JSON

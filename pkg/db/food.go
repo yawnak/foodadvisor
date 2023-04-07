@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/yawnak/foodadvisor/pkg/domain"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 var (

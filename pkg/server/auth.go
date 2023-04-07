@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/bind"
-	"github.com/yawnak/foodadvisor/pkg/domain"
 )
 
 const (

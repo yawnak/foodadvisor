@@ -6,7 +6,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/yawnak/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/yawnak/foodadvisor/pkg/domain"
+	"github.com/yawnak/foodadvisor/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
