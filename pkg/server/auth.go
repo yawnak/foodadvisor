@@ -160,9 +160,9 @@ func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 		}
-		ctxnext := context.WithValue(r.Context(), keyUserId, id)
-		ctxnext = context.WithValue(ctxnext, keyRole, role)
-		next(w, r.WithContext(ctxnext))
+		r = r.WithContext(context.WithValue(r.Context(), keyUserId, id))
+		r = r.WithContext(role.ToContext(r.Context()))
+		next(w, r)
 	}
 }
 
