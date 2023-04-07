@@ -6,40 +6,47 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	xhttp "github.com/m3db/m3/src/x/net/http"
 	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/server/exception"
 	"github.com/yawnak/foodadvisor/pkg/server/middleware"
 )
 
-func (srv *Server) initAPIRoutes() {
+func (srv *Server) initAPIRoutes() http.Handler {
 	// /api subrouter
-	api := srv.router.PathPrefix("/api").Subrouter()
+	r := chi.NewRouter()
+	r.Use(chimiddleware.AllowContentType(xhttp.ContentTypeJSON))
 
 	//sign up endpoints
-	api.HandleFunc("/signup", middleware.ValidateContentJSON(srv.signup)).Methods("POST")
-	api.HandleFunc("/login", middleware.ValidateContentJSON(srv.login)).Methods("POST")
+	r.Post("/signup", srv.signup)
+	r.Post("/login", srv.login)
 
 	// /api/users/ routes
-	//users := api.PathPrefix("/users").Subrouter()
-	usersAuth := api.PathPrefix("/users").Subrouter()
+	r.With(srv.authenticate).Mount("/users", srv.initUserRoutes())
 
-	usersAuth.Use(srv.authenticate)
+	return r
+}
 
-	usersAuthAndPerms := usersAuth.PathPrefix("").Subrouter()
-	usersAuthAndPerms.Use(middleware.ConfirmPermissions(domain.PermEditUserRole))
-	usersAuthAndPerms.HandleFunc("/{id:[0-9]+}/role", srv.setUserRole).Methods("POST")
-
-	roles := api.PathPrefix("/roles").Subrouter()
-	roles.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		role, ok := domain.RoleFromContext(r.Context())
-		log.Println("ROLES")
-		if !ok {
-			exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("not authorized"))
-			log.Fatalln("didn't work. no role in context")
-			return
-		}
-		fmt.Fprintf(w, "hello user with role: %s", role.Name)
-	}).Methods("GET")
-	roles.Use(srv.authenticate)
-	roles.Use(middleware.ConfirmPermissions(domain.PermEditRoles))
+func (srv *Server) initUserRoutes() http.Handler {
+	r := chi.NewRouter()
+	// /{id}
+	r.Route("/{id:[0-9]+}", func(r chi.Router) {
+		r.Use(middleware.ConfirmPermissions(domain.PermEditUserRole))
+		// /{id}}/role get user role
+		r.Get("/role", func(w http.ResponseWriter, r *http.Request) {
+			role, ok := domain.RoleFromContext(r.Context())
+			log.Println("ROLES")
+			if !ok {
+				exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("not authorized"))
+				log.Fatalln("didn't work. no role in context")
+				return
+			}
+			fmt.Fprintf(w, "hello user with role: %s", role.Name)
+		})
+		// /{id}/role set user role
+		r.Post("/role", srv.setUserRole)
+	})
+	return r
 }

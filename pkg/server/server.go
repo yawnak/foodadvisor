@@ -6,24 +6,24 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/go-chi/chi"
 	"github.com/go-playground/validator/v10"
-	"github.com/gorilla/mux"
 	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 type Server struct {
 	app      domain.Advisor
-	router   *mux.Router
+	router   *chi.Mux
 	validate *validator.Validate
 }
 
 func NewServer(app domain.Advisor) (*Server, error) {
 	srv := Server{
 		app:    app,
-		router: mux.NewRouter(),
+		router: chi.NewRouter(),
 	}
 
-	srv.initAPIRoutes()
+	srv.router.Mount("/api", srv.initAPIRoutes())
 	srv.initValidator()
 	return &srv, nil
 }
