@@ -17,3 +17,8 @@ type responseSignup struct {
 	responseSuccess
 	UserId int32 `json:"id"`
 }
+
+type responseCreateMeal struct {
+	responseSuccess
+	MealId int32 `json:"id"`
+}
