@@ -32,20 +32,23 @@ func (srv *Server) initUserRoutes() http.Handler {
 	r := chi.NewRouter()
 	// /{id}
 	r.Route("/{id:[0-9]+}", func(r chi.Router) {
-		r.Use(middleware.ConfirmPermissions(domain.PermEditUserRole))
-		// /{id}}/role get user role
-		r.Get("/role", func(w http.ResponseWriter, r *http.Request) {
-			role, ok := domain.RoleFromContext(r.Context())
-			log.Println("ROLES")
-			if !ok {
-				exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("not authorized"))
-				log.Fatalln("didn't work. no role in context")
-				return
-			}
-			fmt.Fprintf(w, "hello user with role: %s", role.Name)
+		//roles routes
+		r.Route("/role", func(r chi.Router) {
+			r.Use(middleware.ConfirmPermissions(domain.PermEditUserRole))
+			// /{id}}/role get user role
+			r.Get("/role", func(w http.ResponseWriter, r *http.Request) {
+				role, ok := domain.RoleFromContext(r.Context())
+				log.Println("ROLES")
+				if !ok {
+					exception.WriteErrorAsJSON(w, http.StatusInternalServerError, errors.New("not authorized"))
+					log.Fatalln("didn't work. no role in context")
+					return
+				}
+				fmt.Fprintf(w, "hello user with role: %s", role.Name)
+			})
+			// /{id}/role set user role
+			r.Post("/role", srv.setUserRole)
 		})
-		// /{id}/role set user role
-		r.Post("/role", srv.setUserRole)
 	})
 	return r
 }
