@@ -107,3 +107,26 @@ func (srv *Server) createMeal(w http.ResponseWriter, r *http.Request) {
 		MealId: foodid,
 	})
 }
+
+func (srv *Server) updateUserEaten(w http.ResponseWriter, r *http.Request) {
+	userid, ok := userIdFromContext(r.Context())
+	if !ok {
+		log.Println("updateUserEaten error: no userid in request context")
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+	}
+	temp, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "foodid"))
+	if err != nil {
+		exception.WriteErrorAsJSON(w, http.StatusBadRequest, fmt.Errorf("bad foodid"))
+		return
+	}
+	foodid := int32(temp)
+
+	err = srv.app.UpdateUserEaten(r.Context(), userid, foodid, nil)
+	if err != nil {
+		log.Println("updateUserEaten error:", err)
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+
+	writeSuccessOK(w, "ok")
+}
