@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/doug-martin/goqu/v9"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
@@ -14,8 +15,9 @@ import (
 )
 
 var (
-	userStruct = sqlbuilder.NewStruct(new(userRepo))
-	usersTable = "users"
+	userStruct       = sqlbuilder.NewStruct(new(userRepo))
+	usersTable       = "users"
+	foodToUsersTable = "meals_to_users"
 )
 
 type userRepo struct {
@@ -201,4 +203,23 @@ func (db *FoodDB) GetUserRole(ctx context.Context, id int32) (*domain.Role, erro
 		}
 	}
 	return domain.NewRole(roleName, permissions...), nil
+}
+
+func (db *FoodDB) UpdateUserEatenFood(ctx context.Context, userId int32, foodId int32, date time.Time) error {
+	foodToUsers := goqu.T(foodToUsersTable)
+	sql, args, err := goqu.Dialect("postgres").
+		Insert(foodToUsers).
+		Cols("userid", "mealid", "lasteaten").
+		Vals(
+			goqu.Vals{userId, foodId, date.Format(time.DateOnly)},
+		).
+		Prepared(true).ToSQL()
+	if err != nil {
+		return fmt.Errorf("error building sql: %w", err)
+	}
+	_, err = db.pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("error executing sql: %w", err)
+	}
+	return nil
 }
