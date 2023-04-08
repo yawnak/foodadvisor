@@ -3,12 +3,10 @@ package domain
 import "context"
 
 type Food struct {
-	Id       int32
-	Name     string
+	Id   int32
+	Name string
+	//in minutes
 	CookTime int32
-	Price    int32
-	MealType string
-	DishType string
 }
 
 type FoodRepo interface {
