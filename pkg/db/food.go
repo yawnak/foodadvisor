@@ -12,7 +12,7 @@ import (
 
 var (
 	foodStruct = sqlbuilder.NewStruct(new(food))
-	foodTable  = "food"
+	foodTable  = "meals"
 )
 
 type food struct {
