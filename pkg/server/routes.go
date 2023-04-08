@@ -24,7 +24,26 @@ func (srv *Server) initAPIRoutes() http.Handler {
 
 	// // /api/users/ routes
 	r.With(srv.authenticate).Mount("/users", srv.initUserRoutes())
+	r.With(srv.authenticate).Mount("/meals", srv.initMealRoutes())
 
+	return r
+}
+
+func (srv *Server) initMealRoutes() http.Handler {
+	r := chi.NewRouter()
+	r.Post("/", srv.createMeal)
+	r.Route("/{id:[0-9]+}", func(r chi.Router) {
+		//TODO: routes
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("getting food by id..."))
+		})
+		r.Put("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("updating food by id..."))
+		})
+		r.Delete("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("deleting food by id..."))
+		})
+	})
 	return r
 }
 
@@ -48,6 +67,14 @@ func (srv *Server) initUserRoutes() http.Handler {
 			})
 			// /{id}/role set user role
 			r.Post("/role", srv.setUserRole)
+		})
+		r.Route("/eaten", func(r chi.Router) {
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("getting users eaten food..."))
+			})
+			r.Post("/{foodid:[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("updating user eaten food by id..."))
+			})
 		})
 	})
 	return r
