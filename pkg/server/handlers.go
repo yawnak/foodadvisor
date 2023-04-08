@@ -13,13 +13,6 @@ import (
 	"github.com/yawnak/foodadvisor/pkg/server/exception"
 )
 
-type key int
-
-const (
-	keyUserId key = iota
-	keyRole
-)
-
 type Successer interface {
 	Success() string
 	Status() int
