@@ -50,7 +50,8 @@ func (db *FoodDB) GetFoodById(ctx context.Context, id int32) (*domain.Food, erro
 
 func (db *FoodDB) CreateFood(ctx context.Context, food *domain.Food) (int32, error) {
 	f := foodToFoodRepo(food)
-	sb := foodStruct.InsertIntoForTag(foodTable, "details", f)
+	// sb := foodStruct.InsertIntoForTag(foodTable, "details", f)
+	sb := foodStruct.WithTag("details").InsertInto(foodTable, f)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
 	log.Println(sql)
@@ -77,7 +78,7 @@ func (db *FoodDB) DeleteFood(ctx context.Context, id int32) error {
 
 func (db *FoodDB) UpdateFood(ctx context.Context, food *domain.Food) error {
 	foodRepo := foodToFoodRepo(food)
-	sb := foodStruct.UpdateForTag(foodTable, "details", foodRepo)
+	sb := foodStruct.WithTag("details").Update(foodTable, foodRepo)
 	sb.Where(sb.Equal("id", foodRepo.Id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	_, err := db.pool.Exec(ctx, sql, args...)
