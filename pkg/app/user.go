@@ -43,3 +43,17 @@ func (adv *FoodAdvisor) GetUserByCredentials(ctx context.Context, username strin
 func (adv *FoodAdvisor) SetUserRole(ctx context.Context, id int32, role string) error {
 	return adv.db.UpdateUserRole(ctx, id, role)
 }
+
+// if date is nil time.Now will be used
+func (adv *FoodAdvisor) UpdateUserEaten(ctx context.Context, userid int32, foodid int32, date *time.Time) error {
+	var err error
+	if date == nil {
+		err = adv.db.UpdateUserEatenFood(ctx, userid, foodid, time.Now())
+	} else {
+		err = adv.db.UpdateUserEatenFood(ctx, userid, foodid, *date)
+	}
+	if err != nil {
+		return fmt.Errorf("error requesting db: %w", err)
+	}
+	return nil
+}
