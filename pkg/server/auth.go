@@ -185,3 +185,28 @@ func (srv *Server) authenticate(next http.Handler) http.Handler {
 		srv.authTokenToContext(next.ServeHTTP)(w, r)
 	})
 }
+
+func (srv *Server) validateSelf(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id, ok := userIdFromContext(r.Context())
+		if !ok {
+			log.Println("error validate self: no userid in request context")
+			exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+			return
+		}
+
+		temp, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
+		if err != nil {
+			exception.WriteErrorAsJSON(w, http.StatusBadRequest, errors.New("bad userid"))
+			return
+		}
+		uidParam := int32(temp)
+		fmt.Println("id:", id, "uidParam:", uidParam)
+		if id != uidParam {
+			exception.WriteErrorAsJSON(w, http.StatusUnauthorized,
+				errors.New(http.StatusText(http.StatusUnauthorized)))
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
