@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type userCtxKey struct{}
 
@@ -32,6 +35,7 @@ type UserRepo interface {
 	GetUserByUsername(ctx context.Context, username string) (*User, error)
 	GetUserRole(ctx context.Context, id int32) (*Role, error)
 	UpdateUserRole(ctx context.Context, id int32, role string) error
+	UpdateUserEatenFood(ctx context.Context, userId int32, foodId int32, date time.Time) error
 }
 
 type UserUsecase interface {
