@@ -174,7 +174,7 @@ func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 		}
-		r = r.WithContext(context.WithValue(r.Context(), keyUserId, id))
+		r = r.WithContext(userIdToContext(r.Context(), id))
 		r = r.WithContext(role.ToContext(r.Context()))
 		next(w, r)
 	}
