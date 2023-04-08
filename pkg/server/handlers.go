@@ -72,3 +72,45 @@ func (srv *Server) setUserRole(w http.ResponseWriter, r *http.Request) {
 	}
 	writeSuccessOK(w, "ok")
 }
+
+func (srv *Server) createMeal(w http.ResponseWriter, r *http.Request) {
+	var mealreq requestCreateFood
+	binder := bind.JSONBinder{}
+	err := binder.Bind(&mealreq, w, r.Body, &bind.Options{
+		MaxBytes:              1 << 20,
+		DisallowUnknownFields: true,
+	})
+
+	switch status := bindingErrorToHTTPStatus(err); status {
+	case http.StatusOK:
+	case http.StatusInternalServerError:
+		log.Printf("unexpected error binding setUseRoleRequest: %s", err)
+		exception.WriteErrorAsJSON(w, status, errors.New("unexpected error parsing request body"))
+		return
+	default:
+		exception.WriteErrorAsJSON(w, status, err)
+		return
+	}
+
+	//struct validation
+	err = srv.validate.Struct(mealreq)
+	if err != nil {
+		exception.WriteErrorAsJSON(w, http.StatusBadRequest, err)
+		return
+	}
+
+	food := domain.Food(mealreq)
+	foodid, err := srv.app.CreateFood(r.Context(), &food)
+	if err != nil {
+		log.Println("error creating food:", err)
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+	writeSuccess(w, responseCreateMeal{
+		responseSuccess: responseSuccess{
+			HTTPStatusCode: http.StatusCreated,
+			SuccessMessage: "ok",
+		},
+		MealId: foodid,
+	})
+}
