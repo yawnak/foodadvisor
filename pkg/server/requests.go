@@ -16,3 +16,10 @@ type requestSignup struct {
 	ExpirationDays int32   `json:"expiration" validate:"gte=0"` //in days
 	Role           *string `json:"-" validate:"isdefault"`
 }
+
+type requestCreateFood struct {
+	Id   int32  `json:"id" validate:"isdefault"`
+	Name string `json:"name"`
+	//in minutes
+	CookTime int32 `json:"cooktime" validate:"gt=0"`
+}
