@@ -45,4 +45,5 @@ type UserUsecase interface {
 	GenerateToken(ctx context.Context, username string, password string) (string, error)
 	ParseToken(ctx context.Context, token string) (int32, error)
 	ParseTokenWithRole(ctx context.Context, token string) (int32, *Role, error)
+	UpdateUserEaten(ctx context.Context, userid int32, foodid int32, date *time.Time) error
 }
