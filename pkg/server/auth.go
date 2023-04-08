@@ -3,10 +3,13 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/bind"
 	"github.com/yawnak/foodadvisor/pkg/server/exception"
