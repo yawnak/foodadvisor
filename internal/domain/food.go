@@ -18,3 +18,7 @@ type FoodRepo interface {
 	UpdateFood(ctx context.Context, food *Food) error
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
 }
+
+type FoodUsecase interface {
+	CreateFood(ctx context.Context, food *Food) (int32, error)
+}

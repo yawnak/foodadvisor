@@ -33,3 +33,12 @@ type UserRepo interface {
 	GetUserRole(ctx context.Context, id int32) (*Role, error)
 	UpdateUserRole(ctx context.Context, id int32, role string) error
 }
+
+type UserUsecase interface {
+	CreateUser(ctx context.Context, user *User) (int32, error)
+	SetUserRole(ctx context.Context, id int32, role string) error
+	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
+	GenerateToken(ctx context.Context, username string, password string) (string, error)
+	ParseToken(ctx context.Context, token string) (int32, error)
+	ParseTokenWithRole(ctx context.Context, token string) (int32, *Role, error)
+}

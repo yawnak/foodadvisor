@@ -38,3 +38,10 @@ func NewRole(name string, permissions ...Permission) *Role {
 	}
 	return &role
 }
+
+type RoleRepo interface {
+	CreateRole(ctx context.Context, role *Role) error
+	GetRole(ctx context.Context, name string) (*Role, error)
+	UpdateRole(ctx context.Context, role *Role) error
+	DeleteRole(ctx context.Context, name string) error
+}

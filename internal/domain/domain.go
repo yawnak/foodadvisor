@@ -23,22 +23,12 @@ type AdvisorRepo interface {
 }
 
 type Advisor interface {
-	CreateUser(ctx context.Context, user *User) (int32, error)
-	SetUserRole(ctx context.Context, id int32, role string) error
-	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
+	UserUsecase
 	CreateFood(ctx context.Context, food *Food) (int32, error)
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
-	GenerateToken(ctx context.Context, username string, password string) (string, error)
-	ParseToken(ctx context.Context, token string) (int32, error)
-	ParseTokenWithRole(ctx context.Context, token string) (int32, *Role, error)
 }
 
-type RoleRepo interface {
-	CreateRole(ctx context.Context, role *Role) error
-	GetRole(ctx context.Context, name string) (*Role, error)
-	UpdateRole(ctx context.Context, role *Role) error
-	DeleteRole(ctx context.Context, name string) error
-}
+
 
 type Ingridient struct {
 	Id   int32

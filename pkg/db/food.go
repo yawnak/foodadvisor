@@ -19,25 +19,11 @@ type food struct {
 	Id       pgtype.Int4     `db:"id"`
 	Name     pgtype.Text     `db:"name" fieldtag:"details"`
 	CookTime pgtype.Interval `db:"cooktime" fieldtag:"details"`
-	Price    pgtype.Int4     `db:"price" fieldtag:"details"`
-	MealType pgtype.Text     `db:"mealtype" fieldtag:"details"`
-	DishType pgtype.Text     `db:"dishtype" fieldtag:"details"`
 }
 
 func foodToFoodRepo(f *domain.Food) *food {
 	res := food{}
-	res.Id.Int32 = f.Id
-	res.Name.String = f.Name
-	res.CookTime.Microseconds = int64(int64(f.CookTime) * 1000000 * 60)
-	res.Price.Int32 = f.Price
-	res.MealType.String = f.MealType
-	res.DishType.String = f.DishType
-	res.Id.Valid = true
-	res.Name.Valid = true
-	res.CookTime.Valid = true
-	res.Price.Valid = true
-	res.MealType.Valid = true
-	res.DishType.Valid = true
+
 	return &res
 }
 
@@ -46,9 +32,6 @@ func foodRepoToFood(f *food) *domain.Food {
 		Id:       f.Id.Int32,
 		Name:     f.Name.String,
 		CookTime: int32(f.CookTime.Microseconds / 1000000 / 60),
-		Price:    f.Price.Int32,
-		MealType: f.MealType.String,
-		DishType: f.DishType.String,
 	}
 }
 
