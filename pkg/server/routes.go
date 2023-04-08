@@ -72,9 +72,7 @@ func (srv *Server) initUserRoutes() http.Handler {
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("getting users eaten food..."))
 			})
-			r.Post("/{foodid:[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("updating user eaten food by id..."))
-			})
+			r.With(srv.validateSelf).Post("/{foodid:[0-9]+}", srv.updateUserEaten)
 		})
 	})
 	return r
