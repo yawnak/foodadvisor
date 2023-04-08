@@ -23,7 +23,10 @@ type food struct {
 
 func foodToFoodRepo(f *domain.Food) *food {
 	res := food{}
-
+	res.Id.Scan(int64(f.Id))
+	res.Name.Scan(f.Name)
+	res.CookTime.Valid = true
+	res.CookTime.Microseconds = int64(f.CookTime) * 60 * 1_000_000
 	return &res
 }
 
