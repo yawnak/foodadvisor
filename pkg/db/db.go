@@ -4,7 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+var (
+	pggoqu = goqu.Dialect("postgres")
 )
 
 type FoodDB struct {
