@@ -43,6 +43,7 @@ type UserUsecase interface {
 	SetUserRole(ctx context.Context, id int32, role string) error
 	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
 	GenerateToken(ctx context.Context, username string, password string) (string, error)
+	GenerateTokenWithId(ctx context.Context, username string, password string) (int32, string, error)
 	ParseToken(ctx context.Context, token string) (int32, error)
 	ParseTokenWithRole(ctx context.Context, token string) (int32, *Role, error)
 	UpdateUserEaten(ctx context.Context, userid int32, foodid int32, date *time.Time) error
