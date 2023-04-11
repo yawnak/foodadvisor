@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/doug-martin/goqu/v9"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/yawnak/foodadvisor/internal/domain"
@@ -131,4 +132,53 @@ func (db *FoodDB) GetFoodByQuestionary(ctx context.Context, questionary *domain.
 		foods = append(foods, *foodRepoToFood(&cur))
 	}
 	return foods, nil
+}
+
+func (db *FoodDB) GetFoodWithoutLastEaten(ctx context.Context, userid int32, limit uint, offset uint) ([]domain.Food, error) {
+	uT := goqu.T(usersTable)
+	uTId := uT.Col("id")
+	uTExpiration := uT.Col("expiration")
+	mT := goqu.T(foodTable)
+	mTId := mT.Col("id")
+	mTName := mT.Col("name")
+	mTCookTime := mT.Col("cooktime")
+	mTouT := goqu.T("meals_to_users")
+	mTouTMealId := mTouT.Col("mealid")
+	mTouTUserId := mTouT.Col("userid")
+	mTouTLastEaten := mTouT.Col("lasteaten")
+
+	//example query for userid 33, limit 10, offset 10
+	// 	SELECT m.id, m.name, m.cooktime
+	// FROM meals m
+	// LEFT JOIN meals_to_users mu ON m.id = mu.mealid AND mu.userid = 33
+	// JOIN users u ON u.id = 33
+	// WHERE mu.lasteaten IS NULL OR mu.lasteaten < (CURRENT_DATE - u.expiration);
+	// LIMIT 10
+	// OFFSET 10
+	sql, arg, err := pggoqu.Select(mTId, mTName, mTCookTime).From(mT).
+		LeftJoin(mTouT, goqu.On(goqu.And(
+			mTId.Eq(mTouTMealId), mTouTUserId.Eq(userid),
+		))).Join(uT, goqu.On(uTId.Eq(userid))).
+		Where(goqu.Or(
+			mTouTLastEaten.IsNull(),
+			mTouTLastEaten.Lt(goqu.L("CURRENT_DATE - ?", uTExpiration)),
+		)).Limit(limit).Offset(offset).
+		Prepared(true).ToSQL()
+	if err != nil {
+		return nil, fmt.Errorf("error constructing sql: %w", err)
+	}
+	rows, err := db.pool.Query(ctx, sql, arg...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying: %w", err)
+	}
+	meals := make([]domain.Food, 0, limit)
+	for rows.Next() {
+		temp := new(food)
+		err = rows.Scan(&temp.Id, &temp.Name, &temp.CookTime)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning: %w", err)
+		}
+		meals = append(meals, *foodRepoToFood(temp))
+	}
+	return meals, nil
 }
