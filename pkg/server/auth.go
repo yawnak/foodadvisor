@@ -130,7 +130,7 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//token generation
-	token, err := srv.app.GenerateToken(r.Context(), credentials.Username, credentials.Password)
+	userid, token, err := srv.app.GenerateTokenWithId(r.Context(), credentials.Username, credentials.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrWrongCredentials):
@@ -149,7 +149,13 @@ func (srv *Server) login(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(domain.TokenTTL),
 	})
 
-	writeSuccessOK(w, "ok")
+	writeSuccess(w, responseLogin{
+		responseSuccess: responseSuccess{
+			SuccessMessage: "ok",
+			HTTPStatusCode: http.StatusOK,
+		},
+		UserId: userid,
+	})
 }
 
 func (srv *Server) authTokenToContext(next http.HandlerFunc) http.HandlerFunc {
