@@ -32,6 +32,7 @@ func (srv *Server) initAPIRoutes() http.Handler {
 func (srv *Server) initMealRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Post("/", srv.createMeal)
+	r.With(srv.authenticate).Get("/basic-advice", srv.basicAdvise)
 	r.Route("/{id:[0-9]+}", func(r chi.Router) {
 		//TODO: routes
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
