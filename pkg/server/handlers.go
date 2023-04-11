@@ -131,3 +131,26 @@ func (srv *Server) updateUserEaten(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccessOK(w, "ok")
 }
+
+func (srv *Server) basicAdvise(w http.ResponseWriter, r *http.Request) {
+	id, ok := userIdFromContext(r.Context())
+	if !ok {
+		log.Println("basicAdvise: no userid in context")
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+
+	meals, err := srv.app.BasicAdvise(r.Context(), id, 10, 0)
+	if err != nil {
+		log.Println("basicAdvise: error getting basic advise")
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+	writeSuccess(w, responseBasicAdvice{
+		responseSuccess: responseSuccess{
+			SuccessMessage: "ok",
+			HTTPStatusCode: http.StatusOK,
+		},
+		Meals: meals,
+	})
+}
