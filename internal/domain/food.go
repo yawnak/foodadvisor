@@ -1,6 +1,8 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
 type Food struct {
 	Id   int32
@@ -15,8 +17,10 @@ type FoodRepo interface {
 	DeleteFood(ctx context.Context, id int32) error
 	UpdateFood(ctx context.Context, food *Food) error
 	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
+	GetFoodWithoutLastEaten(ctx context.Context, userid int32, limit uint, offset uint) ([]Food, error)
 }
 
 type FoodUsecase interface {
 	CreateFood(ctx context.Context, food *Food) (int32, error)
+	BasicAdvise(ctx context.Context, userid int32, limit uint, offset uint) ([]Food, error)
 }
