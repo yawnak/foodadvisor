@@ -18,6 +18,15 @@ func (srv *Server) initAPIRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(chimiddleware.AllowContentType("application/json"))
 
+	// Add the cors middleware with the required headers
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedMethods: []string{"POST"},
+		AllowedHeaders: []string{"Content-Type"},
+	})
+
+	r.Use(c.Handler)
+
 	//sign up endpoints
 	r.Post("/signup", srv.signup)
 	r.Post("/login", srv.login)
