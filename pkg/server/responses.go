@@ -1,5 +1,7 @@
 package server
 
+import "github.com/yawnak/foodadvisor/internal/domain"
+
 type responseSuccess struct {
 	SuccessMessage string `json:"success"`
 	HTTPStatusCode int    `json:"-"`
@@ -21,4 +23,9 @@ type responseSignup struct {
 type responseCreateMeal struct {
 	responseSuccess
 	MealId int32 `json:"id"`
+}
+
+type responseBasicAdvice struct {
+	responseSuccess
+	Meals []domain.Food `json:"meals"`
 }
