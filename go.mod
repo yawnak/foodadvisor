@@ -35,6 +35,7 @@ require (
 require (
 	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/cors v1.2.1
 	github.com/go-playground/validator/v10 v10.12.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gookit/config/v2 v2.2.1
