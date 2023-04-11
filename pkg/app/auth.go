@@ -22,15 +22,15 @@ type tokenClaims struct {
 	Role   *domain.Role `json:"role"`
 }
 
-func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, password string) (string, error) {
+func (c *FoodAdvisor) generateToken(ctx context.Context, username string, password string) (int32, string, error) {
 	//retrieving user from db
 	user, err := c.db.GetUserByUsername(ctx, username)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrNoUsername):
-			return "", domain.ErrWrongCredentials
+			return 0, "", domain.ErrWrongCredentials
 		default:
-			return "", fmt.Errorf("error generating token: %w", err)
+			return 0, "", fmt.Errorf("error generating token: %w", err)
 		}
 	}
 	//comparing using bcrypt
@@ -38,15 +38,15 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
-			return "", domain.ErrWrongCredentials
+			return 0, "", domain.ErrWrongCredentials
 		default:
-			return "", fmt.Errorf("error generating token: %w", err)
+			return 0, "", fmt.Errorf("error generating token: %w", err)
 		}
 	}
 	//retrieving user role
 	role, err := c.db.GetUserRole(ctx, user.Id)
 	if err != nil {
-		return "", fmt.Errorf("error getting user role: %w", err)
+		return 0, "", fmt.Errorf("error getting user role: %w", err)
 	}
 
 	//creating jwt token
@@ -58,7 +58,20 @@ func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, passwo
 		UserID: user.Id,
 		Role:   role,
 	})
-	return token.SignedString([]byte(signingKey))
+	tokenStr, err := token.SignedString([]byte(signingKey))
+	if err != nil {
+		return 0, "", fmt.Errorf("error signing: %w", err)
+	}
+	return user.Id, tokenStr, nil
+}
+
+func (c *FoodAdvisor) GenerateToken(ctx context.Context, username string, password string) (string, error) {
+	_, token, err := c.generateToken(ctx, username, password)
+	return token, err
+}
+
+func (c *FoodAdvisor) GenerateTokenWithId(ctx context.Context, username string, password string) (int32, string, error) {
+	return c.generateToken(ctx, username, password)
 }
 
 func (adv *FoodAdvisor) parseClaims(ctx context.Context, token string) (*tokenClaims, error) {
