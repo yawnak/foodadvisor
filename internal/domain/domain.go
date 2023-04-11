@@ -24,11 +24,8 @@ type AdvisorRepo interface {
 
 type Advisor interface {
 	UserUsecase
-	CreateFood(ctx context.Context, food *Food) (int32, error)
-	GetFoodByQuestionary(ctx context.Context, questionary *Questionary) ([]Food, error)
+	FoodUsecase
 }
-
-
 
 type Ingridient struct {
 	Id   int32
