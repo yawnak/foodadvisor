@@ -154,3 +154,19 @@ func (srv *Server) basicAdvise(w http.ResponseWriter, r *http.Request) {
 		Meals: meals,
 	})
 }
+
+func (srv *Server) getUser(w http.ResponseWriter, r *http.Request) {
+	userid, ok := userIdFromContext(r.Context())
+	if !ok {
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+	user, err := srv.app.GetUserById(r.Context(), userid)
+	if err != nil {
+		log.Printf("error getUser GetUserById: %s\n", err)
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, err)
+		return
+	}
+	_ = json.NewEncoder(w).Encode(responseGetUserById(*user))
+}
+
