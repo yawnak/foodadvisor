@@ -34,3 +34,11 @@ type responseBasicAdvice struct {
 	responseSuccess
 	Meals []domain.Food `json:"meals"`
 }
+
+type responseGetUserById struct {
+	Id             int32   `json:"id"`
+	Username       string  `json:"username"`
+	Password       string  `json:"-"`
+	ExpirationDays int32   `json:"expiration"` //in days
+	Role           *string `json:"role"`
+}
