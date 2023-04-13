@@ -58,3 +58,12 @@ func (adv *FoodAdvisor) UpdateUserEaten(ctx context.Context, userid int32, foodi
 	}
 	return nil
 }
+
+func (adv *FoodAdvisor) GetUserById(ctx context.Context, userid int32) (*domain.User, error) {
+	u, err := adv.db.GetUserById(ctx, userid)
+	if err != nil {
+		return nil, fmt.Errorf("error getting user by id from db: %w", err)
+	}
+	u.Password = ""
+	return u, err
+}
