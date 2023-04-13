@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/go-playground/validator/v10"
 	"github.com/yawnak/foodadvisor/internal/domain"
 )
@@ -24,7 +25,19 @@ func NewServer(app domain.Advisor) (*Server, error) {
 	}
 
 	rr := chi.NewRouter()
+
+	// Add the cors middleware with the required headers
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
+	//rr.Use(logResponseBody)
+	rr.Use(c.Handler)
+
 	rr.Mount("/api", srv.initAPIRoutes())
+
 	srv.router = rr
 
 	srv.initValidator()

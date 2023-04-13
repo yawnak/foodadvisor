@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
+
 	"github.com/yawnak/foodadvisor/internal/domain"
 	"github.com/yawnak/foodadvisor/pkg/server/exception"
 	"github.com/yawnak/foodadvisor/pkg/server/middleware"
@@ -18,15 +18,6 @@ func (srv *Server) initAPIRoutes() http.Handler {
 	// /api subrouter
 	r := chi.NewRouter()
 	r.Use(chimiddleware.AllowContentType("application/json"))
-
-	// Add the cors middleware with the required headers
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"},
-		AllowedMethods: []string{"POST"},
-		AllowedHeaders: []string{"Content-Type"},
-	})
-
-	r.Use(c.Handler)
 
 	//sign up endpoints
 	r.Post("/signup", srv.signup)
