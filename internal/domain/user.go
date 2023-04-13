@@ -41,6 +41,7 @@ type UserRepo interface {
 type UserUsecase interface {
 	CreateUser(ctx context.Context, user *User) (int32, error)
 	SetUserRole(ctx context.Context, id int32, role string) error
+	GetUserById(ctx context.Context, userid int32) (*User, error)
 	GetUserByCredentials(ctx context.Context, username string, password string) (*User, error)
 	GenerateToken(ctx context.Context, username string, password string) (string, error)
 	GenerateTokenWithId(ctx context.Context, username string, password string) (int32, string, error)
