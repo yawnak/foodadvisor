@@ -62,6 +62,8 @@ func (srv *Server) initUserRoutes() http.Handler {
 	r := chi.NewRouter()
 	// /{id}
 	r.Route("/{id:[0-9]+}", func(r chi.Router) {
+		r.With(srv.validateSelf).Get("/", srv.getUser)
+		r.With(srv.validateSelf).Put("/", srv.updateUser)
 		//roles routes
 		r.Route("/role", func(r chi.Router) {
 			r.Use(middleware.ConfirmPermissions(domain.PermEditUserRole))
