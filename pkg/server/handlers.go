@@ -158,6 +158,7 @@ func (srv *Server) basicAdvise(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) getUser(w http.ResponseWriter, r *http.Request) {
 	userid, ok := userIdFromContext(r.Context())
 	if !ok {
+		log.Println("getUser no userid in context")
 		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
 		return
 	}
@@ -170,3 +171,44 @@ func (srv *Server) getUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(responseGetUserById(*user))
 }
 
+func (srv *Server) updateUser(w http.ResponseWriter, r *http.Request) {
+	userid, ok := userIdFromContext(r.Context())
+	if !ok {
+		log.Println("updateUser: no userid in context")
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+	var updReq requestUpdateUser
+	binder := bind.JSONBinder{}
+	err := binder.Bind(&updReq, w, r.Body, &bind.Options{
+		MaxBytes:              1 << 20,
+		DisallowUnknownFields: true,
+	})
+	switch status := bindingErrorToHTTPStatus(err); status {
+	case http.StatusOK:
+	case http.StatusInternalServerError:
+		log.Printf("unexpected error binding setUseRoleRequest: %s", err)
+		exception.WriteErrorAsJSON(w, status, errors.New("unexpected error parsing request body"))
+		return
+	default:
+		exception.WriteErrorAsJSON(w, status, err)
+		return
+	}
+
+	err = srv.validate.Struct(updReq)
+	if err != nil {
+		exception.WriteErrorAsJSON(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user := domain.User(updReq)
+
+	err = srv.app.UpdateUserById(r.Context(), userid, &user)
+	if err != nil {
+		log.Printf("updateUser: unknown error updating: %s\n", err)
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+
+	writeSuccessOK(w, "ok")
+}
