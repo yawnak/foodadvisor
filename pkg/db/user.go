@@ -207,12 +207,18 @@ func (db *FoodDB) GetUserRole(ctx context.Context, id int32) (*domain.Role, erro
 
 func (db *FoodDB) UpdateUserEatenFood(ctx context.Context, userId int32, foodId int32, date time.Time) error {
 	foodToUsers := goqu.T(foodToUsersTable)
+	ftu := foodToUsers
 	sql, args, err := goqu.Dialect("postgres").
 		Insert(foodToUsers).
 		Cols("userid", "mealid", "lasteaten").
 		Vals(
 			goqu.Vals{userId, foodId, date.Format(time.DateOnly)},
-		).
+		).OnConflict(
+		goqu.DoUpdate("ON CONSTRAINT meals_to_users_pkey",
+			goqu.C("lasteaten").Set(date)).
+			Where(goqu.And(
+				ftu.Col("userid").Eq(userId),
+				ftu.Col("mealid").Eq(foodId)))).
 		Prepared(true).ToSQL()
 	if err != nil {
 		return fmt.Errorf("error building sql: %w", err)
