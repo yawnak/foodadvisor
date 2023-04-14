@@ -212,3 +212,29 @@ func (srv *Server) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	writeSuccessOK(w, "ok")
 }
+
+func (srv *Server) getMeals(w http.ResponseWriter, r *http.Request) {
+	var limit, offset uint
+	temp := chi.URLParamFromCtx(r.Context(), "offset")
+	if temp == "" {
+		offset = 0
+	}
+	temp = chi.URLParamFromCtx(r.Context(), "limit")
+	if temp == "" {
+		limit = 20
+	}
+
+	meals, err := srv.app.GetMeals(r.Context(), offset, limit)
+	if err != nil {
+		log.Printf("error getting meals: %s\n", err)
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, err)
+	}
+
+	writeSuccess(w, responseGetMeals{
+		responseSuccess: responseSuccess{
+			SuccessMessage: "ok",
+			HTTPStatusCode: http.StatusOK,
+		},
+		Meals: meals,
+	})
+}

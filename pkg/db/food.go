@@ -182,3 +182,22 @@ func (db *FoodDB) GetFoodWithoutLastEaten(ctx context.Context, userid int32, lim
 	}
 	return meals, nil
 }
+
+func (db *FoodDB) GetMeals(ctx context.Context, offset uint, limit uint) ([]domain.Food, error) {
+	sb := foodStruct.SelectFrom(foodTable)
+	sql, args := sb.Limit(int(limit)).Offset(int(offset)).BuildWithFlavor(sqlbuilder.PostgreSQL)
+	rows, err := db.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying: %w", err)
+	}
+	meals := []domain.Food{}
+	for rows.Next() {
+		var temp food
+		err = rows.Scan(foodStruct.Addr(&temp)...)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+		meals = append(meals, *foodRepoToFood(&temp))
+	}
+	return meals, nil
+}

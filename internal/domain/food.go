@@ -5,10 +5,10 @@ import (
 )
 
 type Food struct {
-	Id   int32
-	Name string
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
 	//in minutes
-	CookTime int32
+	CookTime int32 `json:"cooktime"`
 }
 
 type FoodRepo interface {

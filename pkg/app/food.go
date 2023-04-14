@@ -19,6 +19,14 @@ func (adv *FoodAdvisor) GetFoodByQuestionary(ctx context.Context, questionary *d
 	return adv.db.GetFoodByQuestionary(ctx, questionary)
 }
 
+func (adv *FoodAdvisor) GetMeals(ctx context.Context, offset uint, limit uint) ([]domain.Food, error) {
+	meals, err := adv.db.GetMeals(ctx, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	return meals, nil
+}
+
 func (adv *FoodAdvisor) BasicAdvise(ctx context.Context, userid int32, limit uint, offset uint) ([]domain.Food, error) {
 	meals, err := adv.db.GetFoodWithoutLastEaten(ctx, userid, limit, offset)
 	if err != nil {

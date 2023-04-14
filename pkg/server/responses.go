@@ -42,3 +42,8 @@ type responseGetUserById struct {
 	ExpirationDays int32   `json:"expiration"` //in days
 	Role           *string `json:"role"`
 }
+
+type responseGetMeals struct {
+	responseSuccess
+	Meals []domain.Food `json:"meals"`
+}
