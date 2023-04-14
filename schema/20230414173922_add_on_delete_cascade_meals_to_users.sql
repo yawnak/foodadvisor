@@ -1,0 +1,2 @@
+-- Modify "meals_to_users" table
+ALTER TABLE "public"."meals_to_users" DROP CONSTRAINT "meals_to_users_mealid_fkey", ADD CONSTRAINT "meals_to_users_mealid_fkey" FOREIGN KEY ("mealid") REFERENCES "public"."meals" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, DROP CONSTRAINT "meals_to_users_userid_fkey", ADD CONSTRAINT "meals_to_users_userid_fkey" FOREIGN KEY ("userid") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE;

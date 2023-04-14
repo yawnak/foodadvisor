@@ -81,13 +81,13 @@ table "meals_to_users" {
     columns     = [column.mealid]
     ref_columns = [table.meals.column.id]
     on_update   = NO_ACTION
-    on_delete   = NO_ACTION
+    on_delete   = CASCADE
   }
   foreign_key "meals_to_users_userid_fkey" {
     columns     = [column.userid]
     ref_columns = [table.users.column.id]
     on_update   = NO_ACTION
-    on_delete   = NO_ACTION
+    on_delete   = CASCADE
   }
 }
 
