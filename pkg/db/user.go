@@ -23,7 +23,7 @@ var (
 type userRepo struct {
 	Id             pgtype.Int4     `db:"id"`
 	Username       pgtype.Text     `db:"username" fieldtag:"details"`
-	Password       pgtype.Text     `db:"passhash" fieldtag:"details"`
+	Password       pgtype.Text     `db:"passhash" fieldtag:"credentials"`
 	ExpirationDays pgtype.Interval `db:"expiration" fieldtag:"details"` //in days
 	Role           pgtype.Text     `db:"role" fieldtag:"role"`
 }
@@ -86,7 +86,8 @@ func (db *FoodDB) GetUserByUsername(ctx context.Context, username string) (*doma
 func (db *FoodDB) CreateUser(ctx context.Context, user *domain.User) (int32, error) {
 	userRepo := userToUserRepo(user)
 	fmt.Println(userRepo)
-	sb := userStruct.InsertIntoForTag(usersTable, "details", userRepo)
+	//sb := userStruct.InsertIntoForTag(usersTable, "details", userRepo)
+	sb := userStruct.WithTag("details", "credentials").InsertInto(usersTable, userRepo)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
 	row := db.pool.QueryRow(ctx, sql, args...)
