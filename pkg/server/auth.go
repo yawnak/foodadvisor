@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -18,20 +17,6 @@ import (
 const (
 	authCookieName = "foodAdvisorAuthToken"
 )
-
-type userIdCtxKey struct{}
-
-func userIdToContext(ctx context.Context, userid int32) context.Context {
-	return context.WithValue(ctx, userIdCtxKey{}, userid)
-}
-
-func userIdFromContext(ctx context.Context) (int32, bool) {
-	uid, ok := ctx.Value(userIdCtxKey{}).(int32)
-	if !ok {
-		return 0, ok
-	}
-	return uid, ok
-}
 
 func (srv *Server) signup(w http.ResponseWriter, r *http.Request) {
 	var err error
