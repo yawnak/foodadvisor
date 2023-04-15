@@ -47,7 +47,7 @@ func (db *FoodDB) GetFoodById(ctx context.Context, id int32) (*domain.Food, erro
 	row := db.pool.QueryRow(ctx, sql, args...)
 	err := row.Scan(foodStruct.Addr(&food)...)
 	if err != nil {
-		return nil, fmt.Errorf("error scanning user: %w", err)
+		return nil, fmt.Errorf("error scanning food: %w", err)
 	}
 	return foodRepoToFood(&food), nil
 }
