@@ -17,20 +17,25 @@ services:
       - backend
 
   postgres:
-    container_name: ${DB_HOST}
-    image: postgres:latest
+    container_name: ${POSTGRES_HOST}
+    env_file:
+      - ./postgres_secrets.env
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    image: postgres:latest
     ports:
-      - "${DB_PORT}:5432"
-    volumes: 
+      - "${POSTGRES_PORT}:5432"
+    volumes:
       - dbdata:/var/lib/postgresql/data
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
