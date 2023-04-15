@@ -250,3 +250,24 @@ func (srv *Server) getMeals(w http.ResponseWriter, r *http.Request) {
 		Meals: meals,
 	})
 }
+
+func (srv *Server) getMeal(w http.ResponseWriter, r *http.Request) {
+	mealid, ok := mealIdFromContext(r.Context())
+	if !ok {
+		log.Println("no mealid in getMeal context")
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+	}
+	meal, err := srv.app.GetMealById(r.Context(), mealid)
+	if err != nil {
+		log.Printf("error getting meal by id: %s\n", err)
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
+		return
+	}
+	writeSuccess(w, responseGetMealById{
+		responseSuccess: responseSuccess{
+			SuccessMessage: "ok",
+			HTTPStatusCode: http.StatusOK,
+		},
+		Meal: *meal,
+	})
+}
