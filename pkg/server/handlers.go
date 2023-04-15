@@ -114,14 +114,13 @@ func (srv *Server) updateUserEaten(w http.ResponseWriter, r *http.Request) {
 		log.Println("updateUserEaten error: no userid in request context")
 		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
 	}
-	temp, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "foodid"))
-	if err != nil {
-		exception.WriteErrorAsJSON(w, http.StatusBadRequest, fmt.Errorf("bad foodid"))
+	mealid, ok := mealIdFromContext(r.Context())
+	if !ok {
+		log.Println("updateUserEaten: no mealid")
+		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
 		return
 	}
-	foodid := int32(temp)
-
-	err = srv.app.UpdateUserEaten(r.Context(), userid, foodid, nil)
+	err := srv.app.UpdateUserEaten(r.Context(), userid, mealid, nil)
 	if err != nil {
 		log.Println("updateUserEaten error:", err)
 		exception.WriteErrorAsJSON(w, http.StatusInternalServerError, domain.ErrUnknownError)
