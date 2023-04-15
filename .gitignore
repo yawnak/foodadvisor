@@ -1,5 +1,7 @@
 /build
 makefile
 .vscode
-.env
 /temp
+secrets.env
+postgres_secrets.env
+docker-compose-config.yml
