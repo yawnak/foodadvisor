@@ -8,11 +8,9 @@ COPY go.sum ./
 
 RUN go mod download
 
-COPY *.go ./
+COPY . ./
 
 RUN go build -o /build ./cmd/web
-
-COPY . ./
 
 EXPOSE 8080
 
