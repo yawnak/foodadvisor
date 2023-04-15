@@ -63,20 +63,6 @@ services:
       retries: 5
       start_period: 5s
 
-  # dbtest:
-  #   container_name: testdb
-  #   image: postgres:latest
-  #   environment:
-  #     POSTGRES_USER: user
-  #     POSTGRES_PASSWORD: mypassword
-  #     POSTGRES_DB: ${DB_NAME}
-  #   ports:
-  #     - "2345:5432"
-  #   volumes: 
-  #     - dbdata:/var/lib/postgresql/data
-  #   networks:
-  #     - learning
-
 networks:
   backend:
     driver: bridge
