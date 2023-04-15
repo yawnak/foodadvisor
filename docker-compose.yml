@@ -3,22 +3,18 @@ version: "3.8"
 
 # add the serivces needed (postgres,go)
 services:
-  # app:
-  #   container_name: api-server
-  #   environment:
-  #     - DB_USER=${DB_USER}
-  #     - DB_PASSWORD=${DB_PASSWORD}
-  #     - DB_NAME=${DB_NAME}
-  #     - DB_HOST=${DB_HOST}
-  #     - DB_PORT=${DB_PORT}
-  #   build: .
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   ports:
-  #     - '8000:8080'
-  #   networks:
-  #     - learning
+  app:
+    container_name: api-server
+    env_file:
+      - ./secrets.env
+    image: yawnak/foodadvisor:v0.1.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '8080:8080'
+    networks:
+      - backend
 
   postgres:
     container_name: ${DB_HOST}
