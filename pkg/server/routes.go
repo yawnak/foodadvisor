@@ -51,6 +51,7 @@ func (srv *Server) initMealRoutes() http.Handler {
 
 func (srv *Server) initUserRoutes() http.Handler {
 	r := chi.NewRouter()
+	r.With(mealIdParamToCtx).Post("/eaten/{mealid:[0-9]+}", srv.updateUserEaten)
 	// /{id}
 	r.Route("/{id:[0-9]+}", func(r chi.Router) {
 		r.With(srv.validateSelf).Get("/", srv.getUser)
@@ -76,7 +77,7 @@ func (srv *Server) initUserRoutes() http.Handler {
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("getting users eaten food..."))
 			})
-			r.With(srv.validateSelf).Post("/{foodid:[0-9]+}", srv.updateUserEaten)
+			r.With(srv.validateSelf).Post("/{mealid:[0-9]+}", srv.updateUserEaten)
 		})
 	})
 	return r
