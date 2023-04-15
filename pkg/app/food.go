@@ -34,3 +34,11 @@ func (adv *FoodAdvisor) BasicAdvise(ctx context.Context, userid int32, limit uin
 	}
 	return meals, nil
 }
+
+func (adv *FoodAdvisor) GetMealById(ctx context.Context, mealid int32) (*domain.Food, error) {
+	meal, err := adv.db.GetFoodById(ctx, mealid)
+	if err != nil {
+		return nil, fmt.Errorf("error querying db: %w", err)
+	}
+	return meal, nil
+}
