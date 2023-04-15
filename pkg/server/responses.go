@@ -47,3 +47,8 @@ type responseGetMeals struct {
 	responseSuccess
 	Meals []domain.Food `json:"meals"`
 }
+
+type responseGetMealById struct {
+	responseSuccess
+	Meal domain.Food `json:"meal"`
+}
