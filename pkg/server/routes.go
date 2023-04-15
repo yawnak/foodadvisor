@@ -51,6 +51,7 @@ func (srv *Server) initMealRoutes() http.Handler {
 
 func (srv *Server) initUserRoutes() http.Handler {
 	r := chi.NewRouter()
+	//TODO: fix frontend so this endpoint is no longer needed
 	r.With(mealIdParamToCtx).Post("/eaten/{mealid:[0-9]+}", srv.updateUserEaten)
 	// /{id}
 	r.Route("/{id:[0-9]+}", func(r chi.Router) {
