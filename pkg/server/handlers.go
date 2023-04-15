@@ -213,15 +213,29 @@ func (srv *Server) updateUser(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) getMeals(w http.ResponseWriter, r *http.Request) {
 	var limit, offset uint
-	temp := chi.URLParamFromCtx(r.Context(), "offset")
+	queryParams := r.URL.Query()
+	temp := queryParams.Get("offset")
 	if temp == "" {
 		offset = 0
+	} else {
+		t, err := strconv.Atoi(temp)
+		if err != nil {
+			exception.WriteErrorAsJSON(w, http.StatusBadRequest, errors.New("bad offset value, must be integer"))
+			return
+		}
+		offset = uint(t)
 	}
-	temp = chi.URLParamFromCtx(r.Context(), "limit")
+	temp = queryParams.Get("limit")
 	if temp == "" {
 		limit = 20
+	} else {
+		t, err := strconv.Atoi(temp)
+		if err != nil {
+			exception.WriteErrorAsJSON(w, http.StatusBadRequest, errors.New("bad limit value, must be integer"))
+			return
+		}
+		limit = uint(t)
 	}
-
 	meals, err := srv.app.GetMeals(r.Context(), offset, limit)
 	if err != nil {
 		log.Printf("error getting meals: %s\n", err)
