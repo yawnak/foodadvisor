@@ -35,7 +35,8 @@ func (srv *Server) initMealRoutes() http.Handler {
 	r.Get("/", srv.getMeals)
 	r.Post("/", srv.createMeal)
 	r.With(srv.authenticate).Get("/basic-advice", srv.basicAdvise)
-	r.Route("/{id:[0-9]+}", func(r chi.Router) {
+	r.Route("/{mealid:[0-9]+}", func(r chi.Router) {
+		r.Use(mealIdParamToCtx)
 		//TODO: routes
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("getting food by id..."))
