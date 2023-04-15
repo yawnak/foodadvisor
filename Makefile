@@ -18,3 +18,7 @@ diff:
 #recalculate hash
 hash:
 	atlas migrate hash --dir "file://schema"
+
+build:
+	@read -p "Enter Docker image tag: " TAG; \
+	docker build -t yawnak/foodadvisor:$$TAG .
