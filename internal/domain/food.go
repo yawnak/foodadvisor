@@ -24,5 +24,6 @@ type FoodRepo interface {
 type FoodUsecase interface {
 	CreateFood(ctx context.Context, food *Food) (int32, error)
 	GetMeals(ctx context.Context, offset uint, limit uint) ([]Food, error)
+	GetMealById(ctx context.Context, mealid int32) (*Food, error)
 	BasicAdvise(ctx context.Context, userid int32, limit uint, offset uint) ([]Food, error)
 }
