@@ -7,7 +7,7 @@ services:
     container_name: api-server
     env_file:
       - ./secrets.env
-    image: yawnak/foodadvisor:v0.1.0
+    image: yawnak/foodadvisor:v0.1.1
     depends_on:
       postgres:
         condition: service_healthy
