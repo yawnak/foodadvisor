@@ -60,5 +60,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("error creating server: %s", err)
 	}
-	srv.ListenAndServe("8080")
+	log.Fatalln("error listening and serving: ", srv.ListenAndServe("8080"))
 }
