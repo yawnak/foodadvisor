@@ -5,39 +5,29 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/asstronom/foodadvisor/pkg/domain"
-	"github.com/huandu/go-sqlbuilder"
+	"github.com/doug-martin/goqu/v9"
+	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/yawnak/foodadvisor/internal/domain"
 )
 
 var (
 	foodStruct = sqlbuilder.NewStruct(new(food))
-	foodTable  = "food"
+	foodTable  = "meals"
 )
 
 type food struct {
 	Id       pgtype.Int4     `db:"id"`
 	Name     pgtype.Text     `db:"name" fieldtag:"details"`
 	CookTime pgtype.Interval `db:"cooktime" fieldtag:"details"`
-	Price    pgtype.Int4     `db:"price" fieldtag:"details"`
-	MealType pgtype.Text     `db:"mealtype" fieldtag:"details"`
-	DishType pgtype.Text     `db:"dishtype" fieldtag:"details"`
 }
 
 func foodToFoodRepo(f *domain.Food) *food {
 	res := food{}
-	res.Id.Int32 = f.Id
-	res.Name.String = f.Name
-	res.CookTime.Microseconds = int64(int64(f.CookTime) * 1000000 * 60)
-	res.Price.Int32 = f.Price
-	res.MealType.String = f.MealType
-	res.DishType.String = f.DishType
-	res.Id.Valid = true
-	res.Name.Valid = true
+	res.Id.Scan(int64(f.Id))
+	res.Name.Scan(f.Name)
 	res.CookTime.Valid = true
-	res.Price.Valid = true
-	res.MealType.Valid = true
-	res.DishType.Valid = true
+	res.CookTime.Microseconds = int64(f.CookTime) * 60 * 1_000_000
 	return &res
 }
 
@@ -46,9 +36,6 @@ func foodRepoToFood(f *food) *domain.Food {
 		Id:       f.Id.Int32,
 		Name:     f.Name.String,
 		CookTime: int32(f.CookTime.Microseconds / 1000000 / 60),
-		Price:    f.Price.Int32,
-		MealType: f.MealType.String,
-		DishType: f.DishType.String,
 	}
 }
 
@@ -60,14 +47,15 @@ func (db *FoodDB) GetFoodById(ctx context.Context, id int32) (*domain.Food, erro
 	row := db.pool.QueryRow(ctx, sql, args...)
 	err := row.Scan(foodStruct.Addr(&food)...)
 	if err != nil {
-		return nil, fmt.Errorf("error scanning user: %w", err)
+		return nil, fmt.Errorf("error scanning food: %w", err)
 	}
 	return foodRepoToFood(&food), nil
 }
 
 func (db *FoodDB) CreateFood(ctx context.Context, food *domain.Food) (int32, error) {
 	f := foodToFoodRepo(food)
-	sb := foodStruct.InsertIntoForTag(foodTable, "details", f)
+	// sb := foodStruct.InsertIntoForTag(foodTable, "details", f)
+	sb := foodStruct.WithTag("details").InsertInto(foodTable, f)
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	sql += " RETURNING id"
 	log.Println(sql)
@@ -94,7 +82,7 @@ func (db *FoodDB) DeleteFood(ctx context.Context, id int32) error {
 
 func (db *FoodDB) UpdateFood(ctx context.Context, food *domain.Food) error {
 	foodRepo := foodToFoodRepo(food)
-	sb := foodStruct.UpdateForTag(foodTable, "details", foodRepo)
+	sb := foodStruct.WithTag("details").Update(foodTable, foodRepo)
 	sb.Where(sb.Equal("id", foodRepo.Id))
 	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 	_, err := db.pool.Exec(ctx, sql, args...)
@@ -144,4 +132,72 @@ func (db *FoodDB) GetFoodByQuestionary(ctx context.Context, questionary *domain.
 		foods = append(foods, *foodRepoToFood(&cur))
 	}
 	return foods, nil
+}
+
+func (db *FoodDB) GetFoodWithoutLastEaten(ctx context.Context, userid int32, limit uint, offset uint) ([]domain.Food, error) {
+	uT := goqu.T(usersTable)
+	uTId := uT.Col("id")
+	uTExpiration := uT.Col("expiration")
+	mT := goqu.T(foodTable)
+	mTId := mT.Col("id")
+	mTName := mT.Col("name")
+	mTCookTime := mT.Col("cooktime")
+	mTouT := goqu.T("meals_to_users")
+	mTouTMealId := mTouT.Col("mealid")
+	mTouTUserId := mTouT.Col("userid")
+	mTouTLastEaten := mTouT.Col("lasteaten")
+
+	//example query for userid 33, limit 10, offset 10
+	// 	SELECT m.id, m.name, m.cooktime
+	// FROM meals m
+	// LEFT JOIN meals_to_users mu ON m.id = mu.mealid AND mu.userid = 33
+	// JOIN users u ON u.id = 33
+	// WHERE mu.lasteaten IS NULL OR mu.lasteaten < (CURRENT_DATE - u.expiration);
+	// LIMIT 10
+	// OFFSET 10
+	sql, arg, err := pggoqu.Select(mTId, mTName, mTCookTime).From(mT).
+		LeftJoin(mTouT, goqu.On(goqu.And(
+			mTId.Eq(mTouTMealId), mTouTUserId.Eq(userid),
+		))).Join(uT, goqu.On(uTId.Eq(userid))).
+		Where(goqu.Or(
+			mTouTLastEaten.IsNull(),
+			mTouTLastEaten.Lt(goqu.L("CURRENT_DATE - ?", uTExpiration)),
+		)).Limit(limit).Offset(offset).
+		Prepared(true).ToSQL()
+	if err != nil {
+		return nil, fmt.Errorf("error constructing sql: %w", err)
+	}
+	rows, err := db.pool.Query(ctx, sql, arg...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying: %w", err)
+	}
+	meals := make([]domain.Food, 0, limit)
+	for rows.Next() {
+		temp := new(food)
+		err = rows.Scan(&temp.Id, &temp.Name, &temp.CookTime)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning: %w", err)
+		}
+		meals = append(meals, *foodRepoToFood(temp))
+	}
+	return meals, nil
+}
+
+func (db *FoodDB) GetMeals(ctx context.Context, offset uint, limit uint) ([]domain.Food, error) {
+	sb := foodStruct.SelectFrom(foodTable)
+	sql, args := sb.Limit(int(limit)).Offset(int(offset)).BuildWithFlavor(sqlbuilder.PostgreSQL)
+	rows, err := db.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, fmt.Errorf("error querying: %w", err)
+	}
+	meals := []domain.Food{}
+	for rows.Next() {
+		var temp food
+		err = rows.Scan(foodStruct.Addr(&temp)...)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+		meals = append(meals, *foodRepoToFood(&temp))
+	}
+	return meals, nil
 }

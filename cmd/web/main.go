@@ -2,49 +2,63 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
+	"os"
 
-	"github.com/asstronom/foodadvisor/cmd/web/config"
-	"github.com/asstronom/foodadvisor/pkg/app"
-	"github.com/asstronom/foodadvisor/pkg/db"
-	migrations "github.com/asstronom/foodadvisor/pkg/db/migrations"
-	"github.com/asstronom/foodadvisor/pkg/ui"
+	"github.com/yawnak/foodadvisor/pkg/app"
+	"github.com/yawnak/foodadvisor/pkg/config"
+	"github.com/yawnak/foodadvisor/pkg/db"
+	"github.com/yawnak/foodadvisor/pkg/server"
 )
 
+var (
+	//flags
+	isDev bool
+)
+
+// parse all flags
+func parseFlags() {
+	flag.BoolVar(&isDev, "dev", false, "set development mode")
+	flag.Parse()
+}
+
 func main() {
-	// dbconf, err := config.ParseDBConnConfigEnv(context.Background(), "DB_")
-	// if err != nil {
-	// 	log.Fatalf("error parsing db conf: %s\n", err)
-	// }
+	var err error
+	parseFlags()
 
-	dbconf, err := config.ParseDBConnConfig(`C:\Users\danya\Documents\foodadvisor\configs\dbconf.yaml`)
+	var dbconf config.DBConnConfig
+	var env string
+	if isDev {
+		env = "dev"
+	} else {
+		env = "prod"
+	}
+	err = config.BindConfig(&dbconf, "configs/conf.yaml", fmt.Sprintf("configs/conf.%s.yaml", env))
 	if err != nil {
-		log.Fatalf("error parsing db conf: %s\n", err)
+		log.Fatalln(err)
 	}
 
-	migrateurl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		dbconf.User, dbconf.Password, dbconf.Host, dbconf.Port, dbconf.Name)
-	pathToMigrations := "../pkg/db/migrations/sql" //"../../pkg/db/migrations/sql"
-	err = migrations.MigrateUp(pathToMigrations, migrateurl)
-	if err != nil {
-		log.Fatalf("error migrating db: %s\n", err)
-	}
+	dbconf.Password = os.Getenv("DB_PASSWORD")
 
 	dburl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		dbconf.User, dbconf.Password, dbconf.Host, dbconf.Port, dbconf.Name)
-	fmt.Println(dburl)
 	foodRepo, err := db.Open(context.Background(), dburl)
 	if err != nil {
 		log.Fatalf("error opening db: %s", err)
 	}
 	defer foodRepo.Close()
-	fmt.Println("Hello world!")
+	log.Println("successfully connected to food database")
 
 	advisor, _ := app.NewFoodAdvisor(foodRepo)
-	cli, _ := ui.NewUICli(advisor)
-	err = cli.Run()
 	if err != nil {
-		log.Fatalf("error in ui: %s", err)
+		log.Fatalf("error creating advisor service: %s", err)
 	}
+
+	srv, err := server.NewServer(advisor)
+	if err != nil {
+		log.Fatalf("error creating server: %s", err)
+	}
+	log.Fatalln("error listening and serving: ", srv.ListenAndServe("8080"))
 }

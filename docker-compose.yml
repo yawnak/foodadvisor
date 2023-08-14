@@ -3,56 +3,65 @@ version: "3.8"
 
 # add the serivces needed (postgres,go)
 services:
-  # app:
-  #   container_name: api-server
-  #   environment:
-  #     - DB_USER=${DB_USER}
-  #     - DB_PASSWORD=${DB_PASSWORD}
-  #     - DB_NAME=${DB_NAME}
-  #     - DB_HOST=${DB_HOST}
-  #     - DB_PORT=${DB_PORT}
-  #   build: .
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   ports:
-  #     - '8000:8080'
-  #   networks:
-  #     - learning
+  app:
+    container_name: api-server
+    env_file:
+      - ./secrets.env
+    image: yawnak/foodadvisor:v0.1.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '8080:8080'
+    networks:
+      - backend
 
   postgres:
-    container_name: ${DB_HOST}
-    image: postgres:latest
+    container_name: ${POSTGRES_HOST}
+    env_file:
+      - ./postgres_secrets.env
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    image: postgres:latest
     ports:
-      - "${DB_PORT}:5432"
-    volumes: 
+      - "${POSTGRES_PORT}:5432"
+    volumes:
       - dbdata:/var/lib/postgresql/data
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
-      interval: 10s
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
+        ]
+      interval: 5s
       timeout: 3s
       retries: 5
-      start_period: 5s
+      start_period: 3s
 
-  # dbtest:
-  #   container_name: testdb
-  #   image: postgres:latest
-  #   environment:
-  #     POSTGRES_USER: user
-  #     POSTGRES_PASSWORD: mypassword
-  #     POSTGRES_DB: ${DB_NAME}
-  #   ports:
-  #     - "2345:5432"
-  #   volumes: 
-  #     - dbdata:/var/lib/postgresql/data
-  #   networks:
-  #     - learning
+  dev_postgres:
+    container_name: devdb
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: test
+    ports:
+      - "6543:5432"
+    volumes:
+      - dev_dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U user -d test'"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
 
 networks:
   backend:
@@ -60,4 +69,6 @@ networks:
 
 volumes:
   dbdata:
+    driver: local
+  dev_dbdata:
     driver: local

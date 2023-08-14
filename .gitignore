@@ -1,1 +1,8 @@
 /build
+.vscode
+/temp
+secrets.env
+postgres_secrets.env
+docker-compose-config.yml
+pkg/db/food_test.go
+pkg/db/user_test.go
