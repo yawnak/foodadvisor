@@ -36,10 +36,10 @@ services:
           "CMD-SHELL",
           "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
         ]
-      interval: 10s
+      interval: 5s
       timeout: 3s
       retries: 5
-      start_period: 5s
+      start_period: 3s
 
   dev_postgres:
     container_name: devdb
@@ -58,10 +58,10 @@ services:
           "CMD-SHELL",
           "sh -c 'pg_isready -U user -d test'"
         ]
-      interval: 10s
+      interval: 5s
       timeout: 3s
       retries: 5
-      start_period: 5s
+      start_period: 3s
 
 networks:
   backend:
