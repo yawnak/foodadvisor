@@ -22,3 +22,6 @@ hash:
 build:
 	@read -p "Enter Docker image tag: " TAG; \
 	docker build -t yawnak/foodadvisor:$$TAG .
+
+update-api-server:
+	docker-compose up -d app
