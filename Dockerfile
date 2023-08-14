@@ -3,10 +3,20 @@ FROM golang:1.21
 RUN mkdir /app
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
-
+#Download dependencies
+COPY go.mod go.sum ./
 RUN go mod download
+RUN go mod verify
+
+COPY cmd ./cmd
+COPY configs ./configs
+COPY internal ./internal
+COPY migrations ./migrations
+COPY pkg ./pkg
+COPY schema ./schema
+COPY .env ./
+COPY secrets.env ./
+
 
 COPY . ./
 
