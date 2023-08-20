@@ -7,7 +7,7 @@ services:
     container_name: api-server
     env_file:
       - ./secrets.env
-    image: yawnak/foodadvisor:v0.1.1
+    image: yawnak/foodadvisor:v0.1.2
     depends_on:
       postgres:
         condition: service_healthy
@@ -19,7 +19,7 @@ services:
   postgres:
     container_name: ${POSTGRES_HOST}
     env_file:
-      - ./postgres_secrets.env
+      - ./secrets.env
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
