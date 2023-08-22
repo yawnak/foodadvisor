@@ -1,0 +1,209 @@
+openapi: "3.0.0"
+info:
+    version: "1.0.0"
+    title: "Food Advisor API"
+    description: Get meal advice
+servers:
+    - url: http://localhost:8080/api
+paths:
+    /login:
+        post:
+            summary: User login
+            description: Authenticates user and returns JWT cookie
+            security: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Credentials"
+            responses:
+                "200":
+                    description: User successfully logged in
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: "jwt-token"
+                "400":
+                    description: Invalid request
+                "401":
+                    description: Invalid credentials
+                "500":
+                    description: Internal server error
+    /signup:
+        post:
+            summary: Register new user
+            description: Create new user and return JWT token in cookie
+            security: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SignUpForm"
+            responses:
+                "200":
+                    description: User successfully created
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: "jwt-token"
+                "400":
+                    description: Invalid request
+                    content:
+                        application/json:                            
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:                            
+                            schema:
+                                $ref: "#/components/schemas/Error"
+    /users/{userid}:
+        get:
+            summary: "Get user by ID"
+            operationId: getUserById
+            parameters:
+                - name: userid
+                  in: path
+                  required: true
+                  description: The ID of the user to retrieve
+                  schema:
+                      type: integer
+                      format: int32
+            security:
+                - jwtCookie: []
+            responses:
+                "200":
+                    description: User successfully found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FullUserDetails"
+        put:
+            summary: "Update user details by ID"
+            operationId: updateUserById
+            parameters:
+                - name: userid
+                  in: path
+                  required: true
+                  description: The ID of the user to retrieve
+                  schema:
+                      type: integer
+                      format: int32
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserDetails"
+            security:
+                - jwtCookie: []
+            responses:
+                "200":
+                    description: User successfully found
+            
+components:
+    schemas:
+        Error:
+            type: object
+            properties:
+                error:
+                    description: A human readable error message
+                    type: string
+            required:
+                - error
+        Credentials:
+            type: object
+            properties:
+                username:
+                    type: string
+                    maxLength: 30
+                    pattern: "^[a-zA-Z0-9_]+$"
+                password:
+                    type: string
+                    maxLength: 72
+                    pattern: "^[a-zA-Z0-9_]+$"
+            required:
+                - username
+                - password
+            example:
+                username: "johndoe"
+                password: "p@ssw0rd"
+
+        UserDetails:
+            type: object
+            properties:
+                username:
+                    type: string
+                    maxLength: 30
+                    pattern: "^[a-zA-Z0-9_]+$"
+                expiration:
+                    description: Number of days before meal will be recommended again
+                    type: integer
+                    format: int32
+                    minimum: 0
+            required:
+                - username
+                - expiration
+
+        FullUserDetails:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32  
+                role:
+                    type: string
+            required:
+                - id
+            allOf: 
+                - $ref: "#/components/schemas/UserDetails"   
+
+        SignUpForm:
+            type: object
+            properties:
+                expiration:
+                    description: Number of days before meal will be recommended again
+                    type: integer
+                    format: int32
+                    minimum: 0
+            allOf:
+                - $ref: "#/components/schemas/Credentials"
+
+        User:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                username:
+                    type: string
+                    maxLength: 30
+                    pattern: "^[a-zA-Z0-9_]+$"
+                password:
+                    type: string
+                    maxLength: 72
+                    pattern: "^[a-zA-Z0-9_]+$"
+                expiration:
+                    description: Number of days before meal will be recommended again
+                    type: integer
+                    format: int32
+                    minimum: 0
+                role:
+                    type: string
+            required:
+                - id
+                - username
+                - expiration
+
+    securitySchemes:
+        jwtCookie:
+            type: apiKey
+            name: jwt-cookie
+            in: cookie
+security:
+    - jwtCookie: []
