@@ -26,11 +26,12 @@ func NewServer(app domain.Advisor) (*Server, error) {
 
 	rr := chi.NewRouter()
 
-	// Add the cors middleware with the required headers
+	//Add the cors middleware with the required headers
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"Content-Type"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 	})
 	//rr.Use(logResponseBody)
