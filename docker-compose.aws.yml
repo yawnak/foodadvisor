@@ -8,6 +8,7 @@ services:
     environment:
       - DB_PASSWORD=${DB_PASSWORD}
     image: yawnak/foodadvisor:v0.1.2
+    command: ["-wenv", "aws"]
     ports:
       - '8080:8080'
     networks:
