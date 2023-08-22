@@ -37,4 +37,4 @@ EXPOSE 8080
 
 USER nonroot:nonroot
 
-CMD [ "/build" ]
+ENTRYPOINT [ "/build" ]

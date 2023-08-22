@@ -15,12 +15,12 @@ import (
 
 var (
 	//flags
-	isDev bool
+	wenv string
 )
 
 // parse all flags
 func parseFlags() {
-	flag.BoolVar(&isDev, "dev", false, "set development mode")
+	flag.StringVar(&wenv, "wenv", "prod", "set environment mode")
 	flag.Parse()
 }
 
@@ -29,13 +29,8 @@ func main() {
 	parseFlags()
 
 	var dbconf config.DBConnConfig
-	var env string
-	if isDev {
-		env = "dev"
-	} else {
-		env = "prod"
-	}
-	err = config.BindConfig(&dbconf, "configs/conf.yaml", fmt.Sprintf("configs/conf.%s.yaml", env))
+	log.Println("environment:", wenv)
+	err = config.BindConfig(&dbconf, "configs/conf.yaml", fmt.Sprintf("configs/conf.%s.yaml", wenv))
 	if err != nil {
 		log.Fatalln(err)
 	}
